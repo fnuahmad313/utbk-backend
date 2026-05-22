@@ -8,10 +8,16 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum Role {
+  ADMIN
+  SISWA
+}
+
 model User {
   id        String           @id
   email     String           @unique
   name      String
+  role      Role             @default(SISWA)
   createdAt DateTime         @default(now())
   sessions  LatihanSession[]
 }

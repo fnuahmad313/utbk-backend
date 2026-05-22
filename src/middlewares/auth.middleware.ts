@@ -1,10 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import { supabaseAdmin } from "../config/supabase";
+import { Role } from "@prisma/client";
 
 export interface AuthRequest extends Request {
   user?: {
     id: string;
     email: string;
+    role?: Role;
   };
 }
 

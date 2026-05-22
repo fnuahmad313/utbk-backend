@@ -4,7 +4,7 @@
 
 ```
 development: http://localhost:3000/api/v1
-production: https://utbk-backend-production.up.railway.app/
+production: https://utbk-backend-production.up.railway.app/api/v1
 ```
 
 ## Authentication
@@ -28,7 +28,8 @@ Token didapatkan dari response endpoint `POST /api/v1/auth/login`.
 #### POST /api/v1/auth/register
 
 **Deskripsi:** Registrasi akun baru menggunakan email dan password. Email verifikasi akan dikirim otomatis oleh Supabase.  
-**Auth required:** Tidak
+**Auth required:** Tidak  
+**Role required:** Tidak ada (Semua)
 
 **Request Headers:**
 ```
@@ -69,7 +70,8 @@ Content-Type: application/json
 #### POST /api/v1/auth/login
 
 **Deskripsi:** Login dengan email dan password, mengembalikan access token Supabase.  
-**Auth required:** Tidak
+**Auth required:** Tidak  
+**Role required:** Tidak ada (Semua)
 
 **Request Headers:**
 ```
@@ -111,7 +113,8 @@ Content-Type: application/json
 #### POST /api/v1/auth/logout
 
 **Deskripsi:** Logout user dan invalidate token yang sedang aktif.  
-**Auth required:** Ya
+**Auth required:** Ya  
+**Role required:** `ADMIN` atau `SISWA`
 
 **Request Headers:**
 ```
@@ -145,8 +148,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 #### GET /api/v1/auth/me
 
-**Deskripsi:** Mengambil data profil user yang sedang login.  
-**Auth required:** Ya
+**Deskripsi:** Mengambil data profil user yang sedang login dari database.  
+**Auth required:** Ya  
+**Role required:** `ADMIN` atau `SISWA`
 
 **Request Headers:**
 ```
@@ -156,19 +160,100 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Success Response** `200 OK`:
 ```json
 {
-  "user": {
+  "data": {
     "id": "cbb75c0d-ac8b-4939-9f24-b69379271c68",
-    "email": "siswa@utbk.dev"
+    "email": "siswa@utbk.dev",
+    "name": "Ahmad Fauzi",
+    "role": "SISWA",
+    "createdAt": "2026-05-20T10:30:00.000Z"
   }
 }
 ```
 
 **Error Responses:**
 
-`401 Unauthorized` — token tidak valid:
+`401 Unauthorized` — token tidak valid atau expired:
 ```json
 {
   "message": "Token tidak valid atau sudah expired"
+}
+```
+
+`404 Not Found` — user tidak ditemukan di database:
+```json
+{
+  "message": "User tidak ditemukan"
+}
+```
+
+---
+
+#### PATCH /api/v1/auth/role
+
+**Deskripsi:** Mengubah role dari user tertentu (khusus untuk admin).  
+**Auth required:** Ya  
+**Role required:** `ADMIN`
+
+**Request Headers:**
+```
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
+```
+
+**Request Body:**
+```json
+{
+  "userId": "cbb75c0d-ac8b-4939-9f24-b69379271c68",
+  "role": "ADMIN"
+}
+```
+
+**Success Response** `200 OK`:
+```json
+{
+  "message": "Role berhasil diubah",
+  "data": {
+    "id": "cbb75c0d-ac8b-4939-9f24-b69379271c68",
+    "email": "siswa@utbk.dev",
+    "name": "Ahmad Fauzi",
+    "role": "ADMIN"
+  }
+}
+```
+
+**Error Responses:**
+
+`400 Bad Request` — parameter body tidak lengkap atau tidak valid:
+```json
+{
+  "message": "userId dan role wajib diisi"
+}
+```
+Atau:
+```json
+{
+  "message": "Role tidak valid. Gunakan ADMIN atau SISWA"
+}
+```
+
+`401 Unauthorized` — token tidak valid, tidak ditemukan, atau expired:
+```json
+{
+  "message": "Token tidak valid atau sudah expired"
+}
+```
+
+`403 Forbidden` — role pengakses bukan ADMIN:
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: ADMIN"
+}
+```
+
+`404 Not Found` — user target tidak ditemukan di database:
+```json
+{
+  "message": "User tidak ditemukan di database"
 }
 ```
 
@@ -181,7 +266,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 #### GET /api/v1/soal
 
 **Deskripsi:** Mengambil daftar semua soal. Mendukung filter berdasarkan `mapel` dan `tingkat`.  
-**Auth required:** Ya
+**Auth required:** Ya  
+**Role required:** `ADMIN` atau `SISWA`
 
 **Request Headers:**
 ```
@@ -244,7 +330,8 @@ GET /api/v1/soal?mapel=TPS&tingkat=mudah
 #### GET /api/v1/soal/:id
 
 **Deskripsi:** Mengambil detail satu soal berdasarkan ID.  
-**Auth required:** Ya
+**Auth required:** Ya  
+**Role required:** `ADMIN` atau `SISWA`
 
 **Request Headers:**
 ```
@@ -292,12 +379,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 #### POST /api/v1/soal
 
 **Deskripsi:** Membuat soal baru. Field `jawaban` dikirim di request body tetapi **tidak dikembalikan** di response.  
-**Auth required:** Ya
+**Auth required:** Ya  
+**Role required:** `ADMIN`
 
 **Request Headers:**
 ```
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 **Request Body:**
@@ -377,17 +465,25 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 }
 ```
 
+`403 Forbidden` — role pengakses bukan ADMIN:
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: ADMIN"
+}
+```
+
 ---
 
 #### PUT /api/v1/soal/:id
 
 **Deskripsi:** Mengupdate soal berdasarkan ID. Hanya field yang dikirim yang akan diupdate (partial update). Field `jawaban` **tidak dikembalikan** di response.  
-**Auth required:** Ya
+**Auth required:** Ya  
+**Role required:** `ADMIN`
 
 **Request Headers:**
 ```
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 **URL Parameters:**
@@ -434,6 +530,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 }
 ```
 
+`403 Forbidden` — role pengakses bukan ADMIN:
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: ADMIN"
+}
+```
+
 `404 Not Found` — soal tidak ditemukan:
 ```json
 {
@@ -446,11 +549,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 #### DELETE /api/v1/soal/:id
 
 **Deskripsi:** Menghapus soal berdasarkan ID.  
-**Auth required:** Ya
+**Auth required:** Ya  
+**Role required:** `ADMIN`
 
 **Request Headers:**
 ```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 **URL Parameters:**
@@ -482,6 +586,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 **Error Responses:**
 
+`403 Forbidden` — role pengakses bukan ADMIN:
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: ADMIN"
+}
+```
+
 `404 Not Found` — soal tidak ditemukan:
 ```json
 {
@@ -496,7 +607,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 #### POST /api/v1/latihan/mulai
 
 **Deskripsi:** Memulai sesi latihan baru. Soal akan diacak menggunakan algoritma Fisher-Yates. Jika soal yang tersedia di database kurang dari jumlah yang diminta, akan dikembalikan soal sebanyak yang tersedia tanpa error.  
-**Auth required:** Ya
+**Auth required:** Ya  
+**Role required:** `SISWA`
 
 **Request Headers:**
 ```
@@ -569,12 +681,20 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 }
 ```
 
+`403 Forbidden` — role pengakses bukan SISWA:
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: SISWA"
+}
+```
+
 ---
 
 #### POST /api/v1/latihan/:sessionId/submit
 
 **Deskripsi:** Submit jawaban untuk sesi latihan. Skor dihitung otomatis berdasarkan persentase jawaban benar, dibulatkan ke integer terdekat. Data jawaban dan update skor disimpan dalam satu transaksi database.  
-**Auth required:** Ya
+**Auth required:** Ya  
+**Role required:** `SISWA`
 
 **Request Headers:**
 ```
@@ -618,20 +738,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 **Error Responses:**
 
-`404 Not Found` — session tidak ditemukan:
-```json
-{
-  "message": "Sesi latihan tidak ditemukan"
-}
-```
-
-`403 Forbidden` — session milik user lain:
-```json
-{
-  "message": "Anda tidak memiliki akses ke sesi ini"
-}
-```
-
 `400 Bad Request` — session sudah selesai:
 ```json
 {
@@ -639,17 +745,24 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 }
 ```
 
-`400 Bad Request` — jawaban kosong:
+`400 Bad Request` — jawaban kosong atau format tidak valid:
 ```json
 {
   "message": "Jawaban tidak boleh kosong"
 }
 ```
 
-`400 Bad Request` — format jawaban tidak valid:
+`403 Forbidden` — session milik user lain ATAU role pengakses bukan SISWA:
 ```json
 {
-  "message": "Setiap item jawaban wajib memiliki jawaban yang valid (A-E)"
+  "message": "Anda tidak memiliki akses ke sesi ini"
+}
+```
+
+`404 Not Found` — session tidak ditemukan:
+```json
+{
+  "message": "Sesi latihan tidak ditemukan"
 }
 ```
 
@@ -658,7 +771,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 #### GET /api/v1/latihan/riwayat
 
 **Deskripsi:** Mengambil daftar riwayat semua sesi latihan milik user yang sedang login, diurutkan dari yang terbaru.  
-**Auth required:** Ya
+**Auth required:** Ya  
+**Role required:** `SISWA`
 
 **Request Headers:**
 ```
@@ -689,12 +803,22 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 }
 ```
 
+**Error Responses:**
+
+`403 Forbidden` — role pengakses bukan SISWA:
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: SISWA"
+}
+```
+
 ---
 
 #### GET /api/v1/latihan/:sessionId
 
 **Deskripsi:** Mengambil detail lengkap sesi latihan, termasuk jawaban user, kunci jawaban benar, status benar/salah, dan pembahasan untuk setiap soal.  
-**Auth required:** Ya
+**Auth required:** Ya  
+**Role required:** `SISWA`
 
 **Request Headers:**
 ```
@@ -766,17 +890,17 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 **Error Responses:**
 
+`403 Forbidden` — session milik user lain ATAU role pengakses bukan SISWA:
+```json
+{
+  "message": "Anda tidak memiliki akses ke sesi ini"
+}
+```
+
 `404 Not Found` — session tidak ditemukan:
 ```json
 {
   "message": "Sesi latihan tidak ditemukan"
-}
-```
-
-`403 Forbidden` — session milik user lain:
-```json
-{
-  "message": "Anda tidak memiliki akses ke sesi ini"
 }
 ```
 
@@ -787,7 +911,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 #### GET /api/v1/info/jalur
 
 **Deskripsi:** Mengambil daftar semua jalur masuk PTN yang tersedia.  
-**Auth required:** Tidak
+**Auth required:** Tidak  
+**Role required:** Tidak ada (Semua)
 
 **Success Response** `200 OK`:
 ```json
@@ -837,7 +962,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 #### GET /api/v1/info/jalur/:slug
 
 **Deskripsi:** Mengambil detail jalur masuk PTN berdasarkan slug.  
-**Auth required:** Tidak
+**Auth required:** Tidak  
+**Role required:** Tidak ada (Semua)
 
 **URL Parameters:**
 
@@ -894,7 +1020,7 @@ GET /api/v1/info/jalur/snbt
 | `201`       | Resource berhasil dibuat                                         |
 | `400`       | Bad Request — validasi gagal atau input tidak valid               |
 | `401`       | Unauthorized — token tidak ada, tidak valid, atau sudah expired   |
-| `403`       | Forbidden — user tidak memiliki akses ke resource ini             |
+| `403`       | Forbidden — user tidak memiliki akses karena role tidak memadai    |
 | `404`       | Not Found — resource tidak ditemukan                              |
 | `500`       | Internal Server Error — kesalahan server                          |
 
