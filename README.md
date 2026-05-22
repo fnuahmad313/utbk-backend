@@ -4,7 +4,7 @@
 
 ```
 development: http://localhost:3000/api/v1
-production: https://utbk-backend-production.up.railway.app/
+production: https://utbk-backend-production.up.railway.app/api/v1
 ```
 
 ## Authentication
@@ -31,11 +31,13 @@ Token didapatkan dari response endpoint `POST /api/v1/auth/login`.
 **Auth required:** Tidak
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "email": "siswa@utbk.dev",
@@ -45,6 +47,7 @@ Content-Type: application/json
 ```
 
 **Success Response** `201 Created`:
+
 ```json
 {
   "message": "Registrasi berhasil, cek email untuk verifikasi",
@@ -58,6 +61,7 @@ Content-Type: application/json
 **Error Responses:**
 
 `400 Bad Request` — email sudah terdaftar:
+
 ```json
 {
   "message": "User already registered"
@@ -72,11 +76,13 @@ Content-Type: application/json
 **Auth required:** Tidak
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "email": "siswa@utbk.dev",
@@ -85,6 +91,7 @@ Content-Type: application/json
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "message": "Login berhasil",
@@ -100,6 +107,7 @@ Content-Type: application/json
 **Error Responses:**
 
 `400 Bad Request` — kredensial salah:
+
 ```json
 {
   "message": "Invalid login credentials"
@@ -114,11 +122,13 @@ Content-Type: application/json
 **Auth required:** Ya
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "message": "Logout berhasil"
@@ -128,6 +138,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `401 Unauthorized` — token tidak ditemukan:
+
 ```json
 {
   "message": "Token tidak ditemukan"
@@ -135,6 +146,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `401 Unauthorized` — token tidak valid atau expired:
+
 ```json
 {
   "message": "Token tidak valid atau sudah expired"
@@ -149,11 +161,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Auth required:** Ya
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "user": {
@@ -166,6 +180,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `401 Unauthorized` — token tidak valid:
+
 ```json
 {
   "message": "Token tidak valid atau sudah expired"
@@ -184,23 +199,26 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Auth required:** Ya
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Query Parameters:**
 
-| Parameter | Tipe   | Wajib | Nilai yang diterima                    |
-|-----------|--------|-------|----------------------------------------|
-| `mapel`   | string | Tidak | `TPS`, `TKA_SAINTEK`, `TKA_SOSHUM`    |
-| `tingkat` | string | Tidak | `mudah`, `sedang`, `sulit`             |
+| Parameter | Tipe   | Wajib | Nilai yang diterima                |
+| --------- | ------ | ----- | ---------------------------------- |
+| `mapel`   | string | Tidak | `TPS`, `TKA_SAINTEK`, `TKA_SOSHUM` |
+| `tingkat` | string | Tidak | `mudah`, `sedang`, `sulit`         |
 
 **Contoh Request:**
+
 ```
 GET /api/v1/soal?mapel=TPS&tingkat=mudah
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": [
@@ -226,6 +244,7 @@ GET /api/v1/soal?mapel=TPS&tingkat=mudah
 **Error Responses:**
 
 `400 Bad Request` — mapel tidak valid:
+
 ```json
 {
   "message": "Mapel tidak valid"
@@ -233,6 +252,7 @@ GET /api/v1/soal?mapel=TPS&tingkat=mudah
 ```
 
 `400 Bad Request` — tingkat tidak valid:
+
 ```json
 {
   "message": "Tingkat tidak valid"
@@ -247,17 +267,19 @@ GET /api/v1/soal?mapel=TPS&tingkat=mudah
 **Auth required:** Ya
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi       |
-|-----------|--------|-------|-----------------|
-| `id`      | string | Ya    | UUID soal       |
+| Parameter | Tipe   | Wajib | Deskripsi |
+| --------- | ------ | ----- | --------- |
+| `id`      | string | Ya    | UUID soal |
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -281,6 +303,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `404 Not Found` — soal tidak ditemukan:
+
 ```json
 {
   "message": "Soal tidak ditemukan"
@@ -295,12 +318,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Auth required:** Ya
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Request Body:**
+
 ```json
 {
   "pertanyaan": "Jika semua kucing adalah hewan, dan semua hewan bernapas, maka...",
@@ -319,6 +344,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Success Response** `201 Created`:
+
 ```json
 {
   "message": "Berhasil dibuat",
@@ -343,6 +369,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `400 Bad Request` — pertanyaan kosong:
+
 ```json
 {
   "message": "Pertanyaan harus diisi dan berupa string"
@@ -350,6 +377,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `400 Bad Request` — opsi tidak lengkap:
+
 ```json
 {
   "message": "Opsi A harus diisi dan berupa string"
@@ -357,6 +385,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `400 Bad Request` — jawaban tidak valid:
+
 ```json
 {
   "message": "Jawaban tidak valid, harus A, B, C, D, atau E"
@@ -364,6 +393,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `400 Bad Request` — mapel tidak valid:
+
 ```json
 {
   "message": "Mapel tidak valid, harus TPS, TKA_SAINTEK, atau TKA_SOSHUM"
@@ -371,6 +401,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `400 Bad Request` — tingkat tidak valid:
+
 ```json
 {
   "message": "Tingkat tidak valid, harus mudah, sedang, atau sulit"
@@ -385,6 +416,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Auth required:** Ya
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
@@ -392,11 +424,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi       |
-|-----------|--------|-------|-----------------|
-| `id`      | string | Ya    | UUID soal       |
+| Parameter | Tipe   | Wajib | Deskripsi |
+| --------- | ------ | ----- | --------- |
+| `id`      | string | Ya    | UUID soal |
 
 **Request Body (semua field opsional):**
+
 ```json
 {
   "pertanyaan": "Pertanyaan yang sudah diupdate?",
@@ -405,6 +438,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -428,6 +462,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `400 Bad Request` — tingkat tidak valid:
+
 ```json
 {
   "message": "Tingkat tidak valid"
@@ -435,6 +470,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `404 Not Found` — soal tidak ditemukan:
+
 ```json
 {
   "message": "Soal tidak ditemukan"
@@ -449,17 +485,19 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Auth required:** Ya
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi       |
-|-----------|--------|-------|-----------------|
-| `id`      | string | Ya    | UUID soal       |
+| Parameter | Tipe   | Wajib | Deskripsi |
+| --------- | ------ | ----- | --------- |
+| `id`      | string | Ya    | UUID soal |
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -483,6 +521,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `404 Not Found` — soal tidak ditemukan:
+
 ```json
 {
   "message": "Soal tidak ditemukan"
@@ -499,12 +538,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Auth required:** Ya
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Request Body:**
+
 ```json
 {
   "mapel": "TPS",
@@ -512,12 +553,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 }
 ```
 
-| Field    | Tipe   | Wajib | Validasi                                     |
-|----------|--------|-------|----------------------------------------------|
-| `mapel`  | string | Ya    | `TPS`, `TKA_SAINTEK`, `TKA_SOSHUM`           |
-| `jumlah` | number | Ya    | Integer, minimum 1, maksimum 40              |
+| Field    | Tipe   | Wajib | Validasi                           |
+| -------- | ------ | ----- | ---------------------------------- |
+| `mapel`  | string | Ya    | `TPS`, `TKA_SAINTEK`, `TKA_SOSHUM` |
+| `jumlah` | number | Ya    | Integer, minimum 1, maksimum 40    |
 
 **Success Response** `201 Created`:
+
 ```json
 {
   "data": {
@@ -549,6 +591,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `400 Bad Request` — mapel tidak valid:
+
 ```json
 {
   "message": "Mapel tidak valid, harus TPS, TKA_SAINTEK, atau TKA_SOSHUM"
@@ -556,6 +599,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `400 Bad Request` — jumlah di luar range:
+
 ```json
 {
   "message": "Jumlah soal tidak valid, harus antara 1 dan 40"
@@ -563,6 +607,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `400 Bad Request` — tidak ada soal tersedia:
+
 ```json
 {
   "message": "Tidak ada soal tersedia untuk mata pelajaran ini"
@@ -577,6 +622,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Auth required:** Ya
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
@@ -584,11 +630,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 **URL Parameters:**
 
-| Parameter   | Tipe   | Wajib | Deskripsi              |
-|-------------|--------|-------|------------------------|
-| `sessionId` | string | Ya    | UUID sesi latihan      |
+| Parameter   | Tipe   | Wajib | Deskripsi         |
+| ----------- | ------ | ----- | ----------------- |
+| `sessionId` | string | Ya    | UUID sesi latihan |
 
 **Request Body:**
+
 ```json
 {
   "jawabans": [
@@ -598,13 +645,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 }
 ```
 
-| Field             | Tipe   | Wajib | Validasi                  |
-|-------------------|--------|-------|---------------------------|
-| `jawabans`        | array  | Ya    | Array of object           |
-| `jawabans[].soalId` | string | Ya  | UUID soal yang valid      |
-| `jawabans[].jawaban` | string | Ya | `A`, `B`, `C`, `D`, `E`  |
+| Field                | Tipe   | Wajib | Validasi                |
+| -------------------- | ------ | ----- | ----------------------- |
+| `jawabans`           | array  | Ya    | Array of object         |
+| `jawabans[].soalId`  | string | Ya    | UUID soal yang valid    |
+| `jawabans[].jawaban` | string | Ya    | `A`, `B`, `C`, `D`, `E` |
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -619,6 +667,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `404 Not Found` — session tidak ditemukan:
+
 ```json
 {
   "message": "Sesi latihan tidak ditemukan"
@@ -626,6 +675,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `403 Forbidden` — session milik user lain:
+
 ```json
 {
   "message": "Anda tidak memiliki akses ke sesi ini"
@@ -633,6 +683,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `400 Bad Request` — session sudah selesai:
+
 ```json
 {
   "message": "Sesi latihan sudah selesai"
@@ -640,6 +691,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `400 Bad Request` — jawaban kosong:
+
 ```json
 {
   "message": "Jawaban tidak boleh kosong"
@@ -647,6 +699,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `400 Bad Request` — format jawaban tidak valid:
+
 ```json
 {
   "message": "Setiap item jawaban wajib memiliki jawaban yang valid (A-E)"
@@ -661,11 +714,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Auth required:** Ya
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": [
@@ -697,17 +752,19 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Auth required:** Ya
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **URL Parameters:**
 
-| Parameter   | Tipe   | Wajib | Deskripsi              |
-|-------------|--------|-------|------------------------|
-| `sessionId` | string | Ya    | UUID sesi latihan      |
+| Parameter   | Tipe   | Wajib | Deskripsi         |
+| ----------- | ------ | ----- | ----------------- |
+| `sessionId` | string | Ya    | UUID sesi latihan |
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -767,6 +824,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `404 Not Found` — session tidak ditemukan:
+
 ```json
 {
   "message": "Sesi latihan tidak ditemukan"
@@ -774,6 +832,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `403 Forbidden` — session milik user lain:
+
 ```json
 {
   "message": "Anda tidak memiliki akses ke sesi ini"
@@ -790,6 +849,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Auth required:** Tidak
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": [
@@ -841,16 +901,18 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Nilai yang diterima               |
-|-----------|--------|-------|-----------------------------------|
-| `slug`    | string | Ya    | `snbt`, `mandiri`, `prestasi`     |
+| Parameter | Tipe   | Wajib | Nilai yang diterima           |
+| --------- | ------ | ----- | ----------------------------- |
+| `slug`    | string | Ya    | `snbt`, `mandiri`, `prestasi` |
 
 **Contoh Request:**
+
 ```
 GET /api/v1/info/jalur/snbt
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -878,6 +940,7 @@ GET /api/v1/info/jalur/snbt
 **Error Responses:**
 
 `404 Not Found` — slug tidak ditemukan:
+
 ```json
 {
   "message": "Jalur masuk tidak ditemukan"
@@ -888,17 +951,18 @@ GET /api/v1/info/jalur/snbt
 
 ## Error Codes
 
-| Status Code | Deskripsi                                                        |
-|-------------|------------------------------------------------------------------|
-| `200`       | Request berhasil                                                 |
-| `201`       | Resource berhasil dibuat                                         |
-| `400`       | Bad Request — validasi gagal atau input tidak valid               |
-| `401`       | Unauthorized — token tidak ada, tidak valid, atau sudah expired   |
-| `403`       | Forbidden — user tidak memiliki akses ke resource ini             |
-| `404`       | Not Found — resource tidak ditemukan                              |
-| `500`       | Internal Server Error — kesalahan server                          |
+| Status Code | Deskripsi                                                       |
+| ----------- | --------------------------------------------------------------- |
+| `200`       | Request berhasil                                                |
+| `201`       | Resource berhasil dibuat                                        |
+| `400`       | Bad Request — validasi gagal atau input tidak valid             |
+| `401`       | Unauthorized — token tidak ada, tidak valid, atau sudah expired |
+| `403`       | Forbidden — user tidak memiliki akses ke resource ini           |
+| `404`       | Not Found — resource tidak ditemukan                            |
+| `500`       | Internal Server Error — kesalahan server                        |
 
 Semua error response menggunakan format:
+
 ```json
 {
   "message": "Deskripsi error dalam Bahasa Indonesia"
