@@ -1,3 +1,4 @@
+import { TipeSoal } from "@prisma/client";
 import { prisma } from "../../config/prisma";
 
 export interface SoalFilter {
@@ -7,8 +8,9 @@ export interface SoalFilter {
 
 export interface SoalInput {
   pertanyaan: string;
+  tipe: TipeSoal;
   opsi: any;
-  jawaban: string;
+  jawaban: any;
   pembahasan?: string;
   mapel: string;
   tingkat: string;
@@ -17,6 +19,7 @@ export interface SoalInput {
 const selectWithoutJawaban = {
   id: true,
   pertanyaan: true,
+  tipe: true,
   opsi: true,
   pembahasan: true,
   mapel: true,
@@ -42,9 +45,7 @@ export const getSoalById = async (id: string) => {
 };
 
 export const createSoal = async (data: SoalInput) => {
-  const created = await prisma.soal.create({
-    data,
-  });
+  const created = await prisma.soal.create({ data });
   const { jawaban, ...rest } = created;
   return rest;
 };

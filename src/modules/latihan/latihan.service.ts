@@ -1,3 +1,4 @@
+import { TipeSoal } from "@prisma/client";
 import { prisma } from "../../config/prisma";
 
 export interface StartSessionInput {
@@ -8,13 +9,38 @@ export interface StartSessionInput {
 
 export interface SubmitAnswer {
   soalId: string;
-  jawaban: string;
+  jawaban: any;
 }
 
 export interface SubmitSessionInput {
   userId: string;
   sessionId: string;
   jawabans: SubmitAnswer[];
+}
+
+const hitungBenar = (tipe: TipeSoal, kunci: any, jawaban: any): boolean => {
+  switch (tipe) {
+    case TipeSoal.SINGLE_CHOICE:
+      return String(kunci).trim() === String(jawaban).trim()
+
+    case TipeSoal.MULTIPLE_CHOICE:
+      if (!Array.isArray(kunci) || !Array.isArray(jawaban)) return false
+      if (kunci.length !== jawaban.length) return false
+      const kunciSorted = [...kunci].sort()
+      const jawabanSorted = [...jawaban].sort()
+      return JSON.stringify(kunciSorted) === JSON.stringify(jawabanSorted)
+
+    case TipeSoal.TRUE_FALSE:
+      if (typeof kunci !== "object" || typeof jawaban !== "object") return false
+      if (Array.isArray(kunci) || Array.isArray(jawaban)) return false
+      return JSON.stringify(kunci) === JSON.stringify(jawaban)
+
+    case TipeSoal.SHORT_ANSWER:
+      return String(kunci).trim().toLowerCase() === String(jawaban).trim().toLowerCase()
+
+    default:
+      return false
+  }
 }
 
 export const startSession = async (input: StartSessionInput) => {
@@ -43,6 +69,7 @@ export const startSession = async (input: StartSessionInput) => {
     select: {
       id: true,
       pertanyaan: true,
+      tipe: true,
       opsi: true,
       pembahasan: true,
       mapel: true,
@@ -109,10 +136,9 @@ export const submitSession = async (input: SubmitSessionInput) => {
     if (!soal) {
       return { error: `soal_not_found_${item.soalId}` };
     }
-    const benar = soal.jawaban === item.jawaban;
-    if (benar) {
-      jumlahBenar++;
-    }
+
+    const benar = hitungBenar(soal.tipe as TipeSoal, soal.jawaban, item.jawaban)
+    if (benar) jumlahBenar++
 
     jawabanSiswaData.push({
       sessionId,
@@ -183,6 +209,7 @@ export const getSessionDetail = async (userId: string, sessionId: string) => {
     soal: {
       id: j.soal.id,
       pertanyaan: j.soal.pertanyaan,
+      tipe: j.soal.tipe,
       opsi: j.soal.opsi,
       pembahasan: j.soal.pembahasan,
       mapel: j.soal.mapel,

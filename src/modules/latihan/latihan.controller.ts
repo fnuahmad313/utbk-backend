@@ -67,14 +67,13 @@ export const submitSession = async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    const allowedAnswers = ["A", "B", "C", "D", "E"];
     for (const item of jawabans) {
       if (!item.soalId || typeof item.soalId !== "string") {
         res.status(400).json({ message: "Setiap item jawaban wajib memiliki soalId berupa string" });
         return;
       }
-      if (!item.jawaban || !allowedAnswers.includes(item.jawaban)) {
-        res.status(400).json({ message: "Setiap item jawaban wajib memiliki jawaban yang valid (A-E)" });
+      if (item.jawaban === undefined || item.jawaban === null) {
+        res.status(400).json({ message: "Setiap item jawaban tidak boleh kosong" });
         return;
       }
     }

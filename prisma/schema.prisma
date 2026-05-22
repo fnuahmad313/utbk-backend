@@ -22,16 +22,25 @@ model User {
   sessions  LatihanSession[]
 }
 
+enum TipeSoal {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  SHORT_ANSWER
+}
+
 model Soal {
-  id         String         @id @default(uuid())
+  id         String   @id @default(uuid())
   pertanyaan String
-  opsi       Json
-  jawaban    String
+  tipe       TipeSoal @default(SINGLE_CHOICE)
+  opsi       Json?
+  jawaban    Json
   pembahasan String?
   mapel      String
   tingkat    String
-  createdAt  DateTime       @default(now())
-  jawabans   JawabanSiswa[]
+  createdAt  DateTime @default(now())
+
+  jawabans JawabanSiswa[]
 }
 
 model LatihanSession {
@@ -49,7 +58,7 @@ model JawabanSiswa {
   id        String         @id @default(uuid())
   sessionId String
   soalId    String
-  jawaban   String
+  jawaban   Json
   benar     Boolean
   session   LatihanSession @relation(fields: [sessionId], references: [id])
   soal      Soal           @relation(fields: [soalId], references: [id])
