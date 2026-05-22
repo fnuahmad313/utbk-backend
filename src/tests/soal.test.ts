@@ -19,6 +19,12 @@ vi.mock("../config/supabase", () => ({
             error: null,
           };
         }
+        if (token === "siswa-token") {
+          return {
+            data: { user: { id: "test-siswa-uuid", email: "testsisswa@utbk.dev" } },
+            error: null,
+          };
+        }
         return { data: { user: null }, error: new Error("Token tidak valid") };
       }),
     },
@@ -28,6 +34,31 @@ vi.mock("../config/supabase", () => ({
 describe("Soal Module", () => {
   const token = "valid-token";
   let createdSoalId: string;
+
+  beforeAll(async () => {
+    const { prisma } = await import("../config/prisma");
+    await prisma.user.upsert({
+      where: { id: "test-user-soal-uuid" },
+      update: {},
+      create: {
+        id: "test-user-soal-uuid",
+        email: "testsoal@utbk.dev",
+        name: "Test Admin Soal",
+        role: "ADMIN"
+      }
+    });
+
+    await prisma.user.upsert({
+      where: { id: "test-siswa-uuid" },
+      update: {},
+      create: {
+        id: "test-siswa-uuid",
+        email: "testsisswa@utbk.dev",
+        name: "Test Siswa",
+        role: "SISWA"
+      }
+    });
+  });
 
   // Cleanup setelah semua test selesai
   afterAll(async () => {
@@ -40,6 +71,9 @@ describe("Soal Module", () => {
     });
     await prisma.soal.deleteMany({
       where: { pertanyaan: { startsWith: "Test Pertanyaan" } },
+    });
+    await prisma.user.deleteMany({
+      where: { id: { in: ["test-user-soal-uuid", "test-siswa-uuid"] } }
     });
   });
 
@@ -58,6 +92,21 @@ describe("Soal Module", () => {
           tingkat: "mudah",
         });
       expect(res.status).toBe(401);
+    });
+
+    it("gagal jika role bukan admin (403)", async () => {
+      const res = await request(app)
+        .post("/api/v1/soal")
+        .set("Authorization", "Bearer siswa-token")
+        .send({
+          pertanyaan: "Test soal",
+          opsi: { A: "A", B: "B", C: "C", D: "D", E: "E" },
+          jawaban: "A",
+          mapel: "TPS",
+          tingkat: "mudah",
+        });
+      expect(res.status).toBe(403);
+      expect(res.body).toHaveProperty("message");
     });
 
     it("gagal jika parameter body tidak valid", async () => {

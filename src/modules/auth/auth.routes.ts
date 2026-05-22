@@ -1,6 +1,9 @@
 import { Router, Request, Response } from "express";
 import { supabase, supabaseAdmin } from "../../config/supabase";
 import { authenticate, AuthRequest } from "../../middlewares/auth.middleware";
+import { requireRole } from "../../middlewares/role.middleware";
+import { Role } from "@prisma/client";
+import { prisma } from "../../config/prisma";
 
 const router = Router();
 
@@ -49,7 +52,7 @@ router.post("/login", async (req: Request, res: Response) => {
 
 router.post(
   "/logout",
-  authenticate,
+  authenticate as any,
   async (req: AuthRequest, res: Response) => {
     const token = req.headers.authorization?.split(" ")[1]!;
 
@@ -59,8 +62,50 @@ router.post(
   },
 );
 
-router.get("/me", authenticate, async (req: AuthRequest, res: Response) => {
-  res.json({ user: req.user });
-});
+router.get("/me", authenticate as any, async (req: AuthRequest, res: Response) => {
+  const dbUser = await prisma.user.findUnique({
+    where: { id: req.user!.id },
+    select: { id: true, email: true, name: true, role: true, createdAt: true }
+  })
+
+  if (!dbUser) {
+    res.status(404).json({ message: 'User tidak ditemukan' })
+    return
+  }
+
+  res.json({ data: dbUser })
+})
+
+// Hanya admin yang bisa ubah role user
+router.patch('/role', requireRole(Role.ADMIN) as any, async (req: AuthRequest, res: Response) => {
+  const { userId, role } = req.body
+
+  if (!userId || !role) {
+    res.status(400).json({ message: 'userId dan role wajib diisi' })
+    return
+  }
+
+  if (!Object.values(Role).includes(role)) {
+    res.status(400).json({ message: 'Role tidak valid. Gunakan ADMIN atau SISWA' })
+    return
+  }
+
+  const userExists = await prisma.user.findUnique({
+    where: { id: userId }
+  })
+
+  if (!userExists) {
+    res.status(404).json({ message: 'User tidak ditemukan di database' })
+    return
+  }
+
+  const updated = await prisma.user.update({
+    where: { id: userId },
+    data: { role },
+    select: { id: true, email: true, name: true, role: true }
+  })
+
+  res.json({ message: 'Role berhasil diubah', data: updated })
+})
 
 export default router;

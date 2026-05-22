@@ -47,7 +47,8 @@ describe("Latihan Module", () => {
       create: {
         id: "test-latihan-user1-uuid",
         email: "latihan1@utbk.dev",
-        name: "Test User 1",
+        name: "Test Siswa 1",
+        role: "SISWA"
       },
     })
 
@@ -57,7 +58,8 @@ describe("Latihan Module", () => {
       create: {
         id: "test-latihan-user2-uuid",
         email: "latihan2@utbk.dev",
-        name: "Test User 2",
+        name: "Test Siswa 2",
+        role: "SISWA"
       },
     })
     await prisma.jawabanSiswa.deleteMany({
