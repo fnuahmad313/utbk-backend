@@ -2,7 +2,6 @@ import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
 import request from "supertest";
 import app from "../app";
 
-// Mock Supabase — tidak butuh koneksi internet atau akun real
 vi.mock("../config/supabase", () => ({
   supabase: {
     auth: {
@@ -12,21 +11,32 @@ vi.mock("../config/supabase", () => ({
           error: null,
         };
       }),
-      signInWithPassword: vi.fn().mockImplementation(async ({ email, password }) => {
-        if (email === "tidakada@utbk.dev") {
-          return { data: { user: null, session: null }, error: new Error("User not found") };
-        }
-        if (password === "wrongpassword") {
-          return { data: { user: null, session: null }, error: new Error("Invalid credentials") };
-        }
-        return {
-          data: {
-            user: { id: "test-siswa-auth-uuid", email },
-            session: { access_token: "siswa-token-auth", refresh_token: "mock-refresh-token" }
-          },
-          error: null,
-        };
-      }),
+      signInWithPassword: vi
+        .fn()
+        .mockImplementation(async ({ email, password }) => {
+          if (email === "tidakada@utbk.dev") {
+            return {
+              data: { user: null, session: null },
+              error: new Error("User not found"),
+            };
+          }
+          if (password === "wrongpassword") {
+            return {
+              data: { user: null, session: null },
+              error: new Error("Invalid credentials"),
+            };
+          }
+          return {
+            data: {
+              user: { id: "test-siswa-auth-uuid", email },
+              session: {
+                access_token: "siswa-token-auth",
+                refresh_token: "mock-refresh-token",
+              },
+            },
+            error: null,
+          };
+        }),
     },
   },
   supabaseAdmin: {
@@ -40,7 +50,9 @@ vi.mock("../config/supabase", () => ({
         }
         if (token === "siswa-token-auth") {
           return {
-            data: { user: { id: "test-siswa-auth-uuid", email: "siswa@utbk.dev" } },
+            data: {
+              user: { id: "test-siswa-auth-uuid", email: "siswa@utbk.dev" },
+            },
             error: null,
           };
         }
@@ -48,7 +60,7 @@ vi.mock("../config/supabase", () => ({
       }),
       admin: {
         signOut: vi.fn().mockResolvedValue({ error: null }),
-      }
+      },
     },
   },
 }));
@@ -106,11 +118,13 @@ describe("Auth Endpoints", () => {
     });
 
     it("gagal register jika email sudah dipakai", async () => {
-      // Mock signUp to return error for duplicate email in this specific test
       const { supabase } = await import("../config/supabase");
       const originalSignUp = supabase.auth.signUp;
       supabase.auth.signUp = vi.fn().mockImplementation(async () => {
-        return { data: { user: null }, error: new Error("User already registered") };
+        return {
+          data: { user: null },
+          error: new Error("User already registered"),
+        };
       });
 
       const res = await request(app).post("/api/v1/auth/register").send({
@@ -121,8 +135,7 @@ describe("Auth Endpoints", () => {
 
       expect(res.status).toBe(400);
       expect(res.body).toHaveProperty("message");
-      
-      // Restore
+
       supabase.auth.signUp = originalSignUp;
     });
 
@@ -246,7 +259,10 @@ describe("Auth Endpoints", () => {
       const res = await request(app)
         .patch("/api/v1/auth/role")
         .set("Authorization", "Bearer admin-token")
-        .send({ userId: "00000000-0000-0000-0000-000000000000", role: "ADMIN" });
+        .send({
+          userId: "00000000-0000-0000-0000-000000000000",
+          role: "ADMIN",
+        });
       expect(res.status).toBe(404);
       expect(res.body).toHaveProperty("message");
     });
