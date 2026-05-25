@@ -1012,6 +1012,752 @@ GET /api/v1/info/jalur/snbt
 
 ---
 
+### Tryout
+
+#### POST /api/v1/tryout
+
+**Deskripsi:** Buat tryout baru (status DRAFT). Secara otomatis menginisialisasi subtes TPS (urutan 1) dan TKA_SAINTEK (urutan 2).  
+**Auth required:** Ya  
+**Role required:** `ADMIN`
+
+**Request Headers:**
+```
+Content-Type: application/json
+Authorization: Bearer <admin_access_token>
+```
+
+**Request Body:**
+```json
+{
+  "judul": "Tryout UTBK Batch 1 2026",
+  "deskripsi": "Simulasi UTBK penuh TPS dan TKA Saintek",
+  "mulaiAt": "2026-06-01T08:00:00.000Z",
+  "selesaiAt": "2026-06-01T14:00:00.000Z",
+  "durasiTps": 150,
+  "durasiTka": 90
+}
+```
+
+**Success Response** `201 Created`:
+```json
+{
+  "message": "Tryout berhasil dibuat",
+  "data": {
+    "id": "cbb75c0d-ac8b-4939-9f24-b69379271c68",
+    "judul": "Tryout UTBK Batch 1 2026",
+    "deskripsi": "Simulasi UTBK penuh TPS dan TKA Saintek",
+    "status": "DRAFT",
+    "mulaiAt": "2026-06-01T08:00:00.000Z",
+    "selesaiAt": "2026-06-01T14:00:00.000Z",
+    "durasiTps": 150,
+    "durasiTka": 90,
+    "createdAt": "2026-05-25T10:00:00.000Z",
+    "subtes": [
+      {
+        "id": "f8e9d0c1-b2a3-4567-8901-abcdef012345",
+        "tryoutId": "cbb75c0d-ac8b-4939-9f24-b69379271c68",
+        "mapel": "TPS",
+        "urutan": 1,
+        "durasi": 150
+      },
+      {
+        "id": "e7d8c9b0-a1f2-3456-7890-abcdef012345",
+        "tryoutId": "cbb75c0d-ac8b-4939-9f24-b69379271c68",
+        "mapel": "TKA_SAINTEK",
+        "urutan": 2,
+        "durasi": 90
+      }
+    ]
+  }
+}
+```
+
+**Error Responses:**
+
+`400 Bad Request` — judul kosong:
+```json
+{
+  "message": "Judul wajib diisi dan tidak boleh kosong"
+}
+```
+
+`400 Bad Request` — selesaiAt sebelum mulaiAt:
+```json
+{
+  "message": "Waktu selesai harus setelah waktu mulai"
+}
+```
+
+`400 Bad Request` — durasi tidak valid:
+```json
+{
+  "message": "Durasi TPS dan TKA wajib berupa integer lebih besar dari 0"
+}
+```
+
+`403 Forbidden` — bukan admin:
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: ADMIN"
+}
+```
+
+---
+
+#### PATCH /api/v1/tryout/:id/status
+
+**Deskripsi:** Update status tryout. Transisi status yang diizinkan: `DRAFT → PUBLISHED → ONGOING → ENDED`.  
+**Auth required:** Ya  
+**Role required:** `ADMIN`
+
+**Request Headers:**
+```
+Content-Type: application/json
+Authorization: Bearer <admin_access_token>
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi       |
+|-----------|--------|-------|-----------------|
+| `id`      | string | Ya    | UUID tryout     |
+
+**Request Body:**
+```json
+{
+  "status": "PUBLISHED"
+}
+```
+
+**Success Response** `200 OK`:
+```json
+{
+  "data": {
+    "id": "cbb75c0d-ac8b-4939-9f24-b69379271c68",
+    "judul": "Tryout UTBK Batch 1 2026",
+    "status": "PUBLISHED"
+  }
+}
+```
+
+**Error Responses:**
+
+`400 Bad Request` — transisi tidak valid:
+```json
+{
+  "message": "Transisi status tidak valid"
+}
+```
+
+`400 Bad Request` — subtes TPS belum punya soal:
+```json
+{
+  "message": "Subtes TPS belum memiliki soal"
+}
+```
+
+`400 Bad Request` — subtes TKA belum punya soal:
+```json
+{
+  "message": "Subtes TKA belum memiliki soal"
+}
+```
+
+`404 Not Found` — tryout tidak ditemukan:
+```json
+{
+  "message": "Tryout tidak ditemukan"
+}
+```
+
+---
+
+#### POST /api/v1/tryout/:id/subtes
+
+**Deskripsi:** Tambah/replace soal di subtes TPS atau TKA. Operasi ini bersifat replace — soal lama di subtes tersebut akan dihapus dan diganti dengan soal baru. Untuk TKA, jika mapel di request berbeda dengan yang tersimpan (misal dari default TKA_SAINTEK ke TKA_SOSHUM), mapel subtes akan otomatis diupdate.  
+**Auth required:** Ya  
+**Role required:** `ADMIN`
+
+**Request Headers:**
+```
+Content-Type: application/json
+Authorization: Bearer <admin_access_token>
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi       |
+|-----------|--------|-------|-----------------|
+| `id`      | string | Ya    | UUID tryout     |
+
+**Request Body:**
+```json
+{
+  "mapel": "TPS",
+  "soalIds": [
+    "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "b2c3d4e5-f6a7-8901-bcde-f12345678901"
+  ]
+}
+```
+
+**Success Response** `200 OK`:
+```json
+{
+  "message": "Soal berhasil ditambahkan ke subtes"
+}
+```
+
+**Error Responses:**
+
+`400 Bad Request` — mapel tidak valid:
+```json
+{
+  "message": "Mapel tidak valid"
+}
+```
+
+`400 Bad Request` — soalIds kosong:
+```json
+{
+  "message": "soalIds wajib diisi dan tidak boleh kosong"
+}
+```
+
+`400 Bad Request` — tryout bukan DRAFT:
+```json
+{
+  "message": "Soal hanya bisa ditambahkan pada tryout berstatus DRAFT"
+}
+```
+
+`400 Bad Request` — soal ID tidak ditemukan:
+```json
+{
+  "message": "Beberapa Soal ID tidak valid atau tidak ditemukan"
+}
+```
+
+`404 Not Found` — tryout tidak ditemukan:
+```json
+{
+  "message": "Tryout tidak ditemukan"
+}
+```
+
+---
+
+#### DELETE /api/v1/tryout/:id
+
+**Deskripsi:** Hapus tryout (hanya status DRAFT). Penghapusan bersifat cascade: SubtesSoal → SubtesTryout → Tryout.  
+**Auth required:** Ya  
+**Role required:** `ADMIN`
+
+**Request Headers:**
+```
+Authorization: Bearer <admin_access_token>
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi       |
+|-----------|--------|-------|-----------------|
+| `id`      | string | Ya    | UUID tryout     |
+
+**Success Response** `200 OK`:
+```json
+{
+  "message": "Tryout berhasil dihapus"
+}
+```
+
+**Error Responses:**
+
+`400 Bad Request` — bukan DRAFT:
+```json
+{
+  "message": "Hanya tryout berstatus DRAFT yang bisa dihapus"
+}
+```
+
+`404 Not Found` — tidak ditemukan:
+```json
+{
+  "message": "Tryout tidak ditemukan"
+}
+```
+
+---
+
+#### GET /api/v1/tryout
+
+**Deskripsi:** Daftar tryout PUBLISHED dan ONGOING untuk siswa. Sistem secara otomatis mengupdate status tryout sebelum dikembalikan.  
+**Auth required:** Ya  
+**Role required:** `SISWA`
+
+**Request Headers:**
+```
+Authorization: Bearer <siswa_access_token>
+```
+
+**Success Response** `200 OK`:
+```json
+{
+  "data": [
+    {
+      "id": "cbb75c0d-ac8b-4939-9f24-b69379271c68",
+      "judul": "Tryout UTBK Batch 1 2026",
+      "deskripsi": "Simulasi UTBK penuh TPS dan TKA Saintek",
+      "status": "ONGOING",
+      "mulaiAt": "2026-06-01T08:00:00.000Z",
+      "selesaiAt": "2026-06-01T14:00:00.000Z",
+      "durasiTps": 150,
+      "durasiTka": 90,
+      "totalSoalTps": 90,
+      "totalSoalTka": 60,
+      "mapelTka": "TKA_SAINTEK"
+    }
+  ]
+}
+```
+
+**Error Responses:**
+
+`401 Unauthorized` — token tidak valid atau expired:
+```json
+{
+  "message": "Token tidak valid atau sudah expired"
+}
+```
+
+`403 Forbidden` — role pengakses bukan SISWA:
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: SISWA"
+}
+```
+
+---
+
+#### GET /api/v1/tryout/:id
+
+**Deskripsi:** Detail tryout untuk siswa (hanya jika tryout berstatus ONGOING).  
+**Auth required:** Ya  
+**Role required:** `SISWA`
+
+**Request Headers:**
+```
+Authorization: Bearer <siswa_access_token>
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi       |
+|-----------|--------|-------|-----------------|
+| `id`      | string | Ya    | UUID tryout     |
+
+**Success Response** `200 OK`:
+```json
+{
+  "data": {
+    "id": "cbb75c0d-ac8b-4939-9f24-b69379271c68",
+    "judul": "Tryout UTBK Batch 1 2026",
+    "status": "ONGOING",
+    "mulaiAt": "2026-06-01T08:00:00.000Z",
+    "selesaiAt": "2026-06-01T14:00:00.000Z",
+    "durasiTps": 150,
+    "durasiTka": 90,
+    "subtes": [
+      {
+        "id": "f8e9d0c1-b2a3-4567-8901-abcdef012345",
+        "mapel": "TPS",
+        "urutan": 1,
+        "durasi": 150
+      },
+      {
+        "id": "e7d8c9b0-a1f2-3456-7890-abcdef012345",
+        "mapel": "TKA_SAINTEK",
+        "urutan": 2,
+        "durasi": 90
+      }
+    ]
+  }
+}
+```
+
+**Error Responses:**
+
+`404 Not Found` — tidak ditemukan:
+```json
+{
+  "message": "Tryout tidak ditemukan"
+}
+```
+
+`400 Bad Request` — tryout belum dalam status ONGOING:
+```json
+{
+  "message": "Tryout belum dalam status ONGOING"
+}
+```
+
+---
+
+#### POST /api/v1/tryout/:id/mulai
+
+**Deskripsi:** Mulai sesi tryout siswa. Menginisialisasi subtes TPS (urutan 1), menetapkan deadline subtes TPS, dan mengembalikan daftar soal TPS tanpa menyertakan kunci jawaban.  
+**Auth required:** Ya  
+**Role required:** `SISWA`
+
+**Request Headers:**
+```
+Authorization: Bearer <siswa_access_token>
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi       |
+|-----------|--------|-------|-----------------|
+| `id`      | string | Ya    | UUID tryout     |
+
+**Success Response** `201 Created`:
+```json
+{
+  "message": "Sesi tryout dimulai",
+  "data": {
+    "sesiId": "cbb75c0d-ac8b-4939-9f24-b69379271c68",
+    "tryoutId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "subtesAktif": {
+      "id": "f8e9d0c1-b2a3-4567-8901-abcdef012345",
+      "mapel": "TPS",
+      "urutan": 1,
+      "durasi": 150,
+      "deadline": "2026-06-01T10:30:00.000Z"
+    },
+    "soal": [
+      {
+        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "nomorSoal": 1,
+        "pertanyaan": "Manakah pernyataan yang paling logis?",
+        "tipe": "SINGLE_CHOICE",
+        "opsi": {
+          "A": "Pernyataan A",
+          "B": "Pernyataan B",
+          "C": "Pernyataan C",
+          "D": "Pernyataan D",
+          "E": "Pernyataan E"
+        }
+      }
+    ]
+  }
+}
+```
+
+**Error Responses:**
+
+`400 Bad Request` — tryout belum ONGOING:
+```json
+{
+  "message": "Tryout belum berlangsung atau sudah selesai"
+}
+```
+
+`400 Bad Request` — waktu sudah habis:
+```json
+{
+  "message": "Waktu pelaksanaan tryout telah berakhir"
+}
+```
+
+`400 Bad Request` — sudah punya sesi aktif:
+```json
+{
+  "message": "Anda sudah memiliki sesi aktif untuk tryout ini"
+}
+```
+
+`404 Not Found` — tryout tidak ditemukan:
+```json
+{
+  "message": "Tryout tidak ditemukan"
+}
+```
+
+---
+
+#### POST /api/v1/tryout/sesi/:sesiId/submit-subtes
+
+**Deskripsi:** Submit jawaban subtes aktif (TPS), lanjut ke subtes berikutnya (TKA). Menghitung skor TPS siswa, menyimpan seluruh jawaban, memperbarui deadline TKA, dan mengembalikan daftar soal TKA tanpa menyertakan kunci jawaban.  
+**Auth required:** Ya  
+**Role required:** `SISWA`
+
+**Request Headers:**
+```
+Content-Type: application/json
+Authorization: Bearer <siswa_access_token>
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi       |
+|-----------|--------|-------|-----------------|
+| `sesiId`  | string | Ya    | UUID sesi tryout|
+
+**Request Body:**
+```json
+{
+  "jawabans": [
+    { "soalId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890", "jawaban": "A" },
+    { "soalId": "b2c3d4e5-f6a7-8901-bcde-f12345678901", "jawaban": ["A", "C"] },
+    { "soalId": "c3d4e5f6-a7b8-9012-3456-7890abcdef01", "jawaban": { "0": true, "1": false } }
+  ]
+}
+```
+
+**Success Response** `200 OK`:
+```json
+{
+  "message": "Subtes TPS selesai, lanjut ke TKA",
+  "data": {
+    "skorSubtesTps": 75,
+    "subtesBerikutnya": {
+      "id": "e7d8c9b0-a1f2-3456-7890-abcdef012345",
+      "mapel": "TKA_SAINTEK",
+      "urutan": 2,
+      "durasi": 90,
+      "deadline": "2026-06-01T12:00:00.000Z"
+    },
+    "soal": [
+      {
+        "id": "d4e5f6a7-b8c9-0123-4567-890abcdef012",
+        "nomorSoal": 1,
+        "pertanyaan": "Berapakah nilai integral dari...",
+        "tipe": "SHORT_ANSWER",
+        "opsi": null
+      }
+    ]
+  }
+}
+```
+
+**Error Responses:**
+
+`400 Bad Request` — sesi tidak aktif:
+```json
+{
+  "message": "Sesi tryout tidak aktif atau sudah selesai"
+}
+```
+
+`403 Forbidden` — sesi bukan milik user:
+```json
+{
+  "message": "Akses ditolak"
+}
+```
+
+`404 Not Found` — sesi tidak ditemukan:
+```json
+{
+  "message": "Sesi tryout tidak ditemukan"
+}
+```
+
+---
+
+#### POST /api/v1/tryout/sesi/:sesiId/selesai
+
+**Deskripsi:** Selesaikan tryout dan submit jawaban subtes terakhir (TKA). Menghitung skor TKA, skor total rata-rata, menandai status sesi (`SUBMITTED` atau `EXPIRED`), dan merekam waktu selesai.  
+**Auth required:** Ya  
+**Role required:** `SISWA`
+
+**Request Headers:**
+```
+Content-Type: application/json
+Authorization: Bearer <siswa_access_token>
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi       |
+|-----------|--------|-------|-----------------|
+| `sesiId`  | string | Ya    | UUID sesi tryout|
+
+**Request Body:**
+```json
+{
+  "jawabans": [
+    { "soalId": "d4e5f6a7-b8c9-0123-4567-890abcdef012", "jawaban": "B" }
+  ]
+}
+```
+
+**Success Response** `200 OK`:
+```json
+{
+  "message": "Tryout selesai",
+  "data": {
+    "sesiId": "cbb75c0d-ac8b-4939-9f24-b69379271c68",
+    "skorTps": 75,
+    "skorTka": 80,
+    "skorTotal": 77,
+    "selesaiAt": "2026-06-01T11:45:00.000Z"
+  }
+}
+```
+
+**Error Responses:**
+
+`400 Bad Request` — sesi sudah disubmit sebelumnya:
+```json
+{
+  "message": "Sesi tryout tidak aktif atau sudah disubmit sebelumnya"
+}
+```
+
+`403 Forbidden` — sesi bukan milik user:
+```json
+{
+  "message": "Akses ditolak"
+}
+```
+
+`404 Not Found` — sesi tidak ditemukan:
+```json
+{
+  "message": "Sesi tryout tidak ditemukan"
+}
+```
+
+---
+
+#### GET /api/v1/tryout/sesi/:sesiId/hasil
+
+**Deskripsi:** Lihat hasil analisis detail sesi tryout. Hanya bisa diakses apabila sesi telah berstatus `SUBMITTED` atau `EXPIRED`.  
+**Auth required:** Ya  
+**Role required:** `SISWA`
+
+**Request Headers:**
+```
+Authorization: Bearer <siswa_access_token>
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi       |
+|-----------|--------|-------|-----------------|
+| `sesiId`  | string | Ya    | UUID sesi tryout|
+
+**Success Response** `200 OK`:
+```json
+{
+  "data": {
+    "sesiId": "cbb75c0d-ac8b-4939-9f24-b69379271c68",
+    "tryout": {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "judul": "Tryout UTBK Batch 1 2026"
+    },
+    "status": "SUBMITTED",
+    "skorTps": 75,
+    "skorTka": 80,
+    "skorTotal": 77,
+    "mulaiAt": "2026-06-01T08:00:00.000Z",
+    "selesaiAt": "2026-06-01T11:45:00.000Z",
+    "detailSubtes": [
+      {
+        "mapel": "TPS",
+        "totalSoal": 90,
+        "jumlahBenar": 67,
+        "jumlahSalah": 23,
+        "skor": 75
+      },
+      {
+        "mapel": "TKA_SAINTEK",
+        "totalSoal": 60,
+        "jumlahBenar": 48,
+        "jumlahSalah": 12,
+        "skor": 80
+      }
+    ]
+  }
+}
+```
+
+**Error Responses:**
+
+`400 Bad Request` — hasil belum bisa dilihat karena sesi masih berlangsung:
+```json
+{
+  "message": "Hasil tryout belum bisa dilihat karena sesi masih berlangsung"
+}
+```
+
+`403 Forbidden` — sesi bukan milik user:
+```json
+{
+  "message": "Akses ditolak"
+}
+```
+
+`404 Not Found` — sesi tidak ditemukan:
+```json
+{
+  "message": "Sesi tryout tidak ditemukan"
+}
+```
+
+---
+
+#### GET /api/v1/tryout/sesi/riwayat
+
+**Deskripsi:** Riwayat sesi tryout milik siswa yang sedang login, diurutkan dari terbaru.  
+**Auth required:** Ya  
+**Role required:** `SISWA`
+
+**Request Headers:**
+```
+Authorization: Bearer <siswa_access_token>
+```
+
+**Success Response** `200 OK`:
+```json
+{
+  "data": [
+    {
+      "sesiId": "cbb75c0d-ac8b-4939-9f24-b69379271c68",
+      "tryout": {
+        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "judul": "Tryout UTBK Batch 1 2026"
+      },
+      "status": "SUBMITTED",
+      "skorTps": 75,
+      "skorTka": 80,
+      "skorTotal": 77,
+      "mulaiAt": "2026-06-01T08:00:00.000Z",
+      "selesaiAt": "2026-06-01T11:45:00.000Z"
+    }
+  ]
+}
+```
+
+**Error Responses:**
+
+`401 Unauthorized` — token tidak valid atau expired:
+```json
+{
+  "message": "Token tidak valid atau sudah expired"
+}
+```
+
+`403 Forbidden` — role pengakses bukan SISWA:
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: SISWA"
+}
+```
+
+---
+
 ## Error Codes
 
 | Status Code | Deskripsi                                                        |

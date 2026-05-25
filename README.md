@@ -244,6 +244,22 @@ WHERE email = 'your-admin@example.com';
 | `GET`    | `/api/v1/info/jalur`              | —    | —               | List all PTN admission pathways    |
 | `GET`    | `/api/v1/info/jalur/:slug`        | —    | —               | Get a specific admission pathway   |
 
+### Tryout (`/api/v1/tryout`)
+
+| Method | Path | Role | Deskripsi |
+|--------|------|------|-----------|
+| POST | /api/v1/tryout | ADMIN | Buat tryout baru (status DRAFT) |
+| PATCH | /api/v1/tryout/:id/status | ADMIN | Update status tryout (DRAFT→PUBLISHED→ONGOING→ENDED) |
+| POST | /api/v1/tryout/:id/subtes | ADMIN | Tambah/replace soal di subtes TPS atau TKA |
+| DELETE | /api/v1/tryout/:id | ADMIN | Hapus tryout (hanya status DRAFT) |
+| GET | /api/v1/tryout | SISWA | Daftar tryout PUBLISHED dan ONGOING |
+| GET | /api/v1/tryout/:id | SISWA | Detail tryout |
+| POST | /api/v1/tryout/:id/mulai | SISWA | Mulai sesi tryout, mendapat soal TPS |
+| POST | /api/v1/tryout/sesi/:sesiId/submit-subtes | SISWA | Submit jawaban subtes aktif, lanjut ke subtes berikutnya |
+| POST | /api/v1/tryout/sesi/:sesiId/selesai | SISWA | Selesaikan tryout, hitung skor final |
+| GET | /api/v1/tryout/sesi/:sesiId/hasil | SISWA | Lihat hasil sesi tryout |
+| GET | /api/v1/tryout/sesi/riwayat | SISWA | Riwayat sesi tryout milik siswa |
+
 For full request/response schemas, see [`docs/API.md`](docs/API.md).
 
 ---

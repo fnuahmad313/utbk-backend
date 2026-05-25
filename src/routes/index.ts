@@ -3,6 +3,7 @@ import authRoutes from "../modules/auth/auth.routes";
 import soalRoutes from "../modules/soal/soal.routes";
 import latihanRoutes from "../modules/latihan/latihan.routes";
 import infoRoutes from "../modules/info/info.routes";
+import tryoutRoutes from "../modules/tryout/tryout.routes";
 
 const router = Router();
 
@@ -10,5 +11,6 @@ router.use("/auth", authRoutes);
 router.use("/soal", soalRoutes);
 router.use("/latihan", latihanRoutes);
 router.use("/info", infoRoutes);
+router.use("/tryout", tryoutRoutes);
 
 export default router;

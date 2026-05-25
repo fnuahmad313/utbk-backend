@@ -8,42 +8,29 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum Role {
-  ADMIN
-  SISWA
-}
-
 model User {
-  id        String           @id
-  email     String           @unique
-  name      String
-  role      Role             @default(SISWA)
-  createdAt DateTime         @default(now())
-  sessions  LatihanSession[]
-  sesiTryouts   SesiTryout[]
-}
-
-enum TipeSoal {
-  SINGLE_CHOICE
-  MULTIPLE_CHOICE
-  TRUE_FALSE
-  SHORT_ANSWER
+  id          String           @id
+  email       String           @unique
+  name        String
+  createdAt   DateTime         @default(now())
+  role        Role             @default(SISWA)
+  sessions    LatihanSession[]
+  sesiTryouts SesiTryout[]
 }
 
 model Soal {
-  id         String   @id @default(uuid())
-  pertanyaan String
-  tipe       TipeSoal @default(SINGLE_CHOICE)
-  opsi       Json?
-  jawaban    Json
-  pembahasan String?
-  mapel      String
-  tingkat    String
-  createdAt  DateTime @default(now())
-
-  jawabans JawabanSiswa[]
-  subtesSoals   SubtesSoal[]
-  jawabanTryouts   JawabanTryout[]
+  id             String          @id @default(uuid())
+  pertanyaan     String
+  opsi           Json?
+  pembahasan     String?
+  mapel          String
+  tingkat        String
+  createdAt      DateTime        @default(now())
+  tipe           TipeSoal        @default(SINGLE_CHOICE)
+  jawaban        Json
+  jawabans       JawabanSiswa[]
+  jawabanTryouts JawabanTryout[]
+  subtesSoals    SubtesSoal[]
 }
 
 model LatihanSession {
@@ -61,86 +48,93 @@ model JawabanSiswa {
   id        String         @id @default(uuid())
   sessionId String
   soalId    String
-  jawaban   Json
   benar     Boolean
+  jawaban   Json
   session   LatihanSession @relation(fields: [sessionId], references: [id])
   soal      Soal           @relation(fields: [soalId], references: [id])
 }
 
-enum StatusTryout {
-  DRAFT        // dibuat admin, belum dipublish
-  PUBLISHED    // bisa dilihat siswa, belum bisa dikerjakan
-  ONGOING      // sedang berlangsung, siswa bisa mulai
-  ENDED        // waktu habis, tidak bisa dikerjakan lagi
-}
-
-enum StatusSesiTryout {
-  IN_PROGRESS  // siswa sedang mengerjakan
-  SUBMITTED    // siswa submit manual
-  EXPIRED      // waktu habis, auto-submit backend
-}
-
 model Tryout {
-  id            String        @id @default(uuid())
-  judul         String
-  deskripsi     String?
-  status        StatusTryout  @default(DRAFT)
-  mulaiAt       DateTime      // jadwal mulai — ditentukan admin
-  selesaiAt     DateTime      // jadwal selesai — ditentukan admin
-  durasiTps     Int           // durasi subtes TPS dalam menit
-  durasiTka     Int           // durasi subtes TKA dalam menit
-  createdAt     DateTime      @default(now())
-
-  subtes        SubtesTryout[]
-  sesi          SesiTryout[]
+  id        String         @id @default(uuid())
+  judul     String
+  deskripsi String?
+  status    StatusTryout   @default(DRAFT)
+  mulaiAt   DateTime
+  selesaiAt DateTime
+  durasiTps Int
+  durasiTka Int
+  createdAt DateTime       @default(now())
+  sesi      SesiTryout[]
+  subtes    SubtesTryout[]
 }
 
 model SubtesTryout {
-  id        String   @id @default(uuid())
-  tryoutId  String
-  mapel     String   // "TPS" | "TKA_SAINTEK" | "TKA_SOSHUM"
-  urutan    Int      // 1 = TPS, 2 = TKA
-  durasi    Int      // durasi dalam menit
-
-  tryout    Tryout   @relation(fields: [tryoutId], references: [id])
-  soals     SubtesSoal[]
+  id       String       @id @default(uuid())
+  tryoutId String
+  mapel    String
+  urutan   Int
+  durasi   Int
+  soals    SubtesSoal[]
+  tryout   Tryout       @relation(fields: [tryoutId], references: [id])
 }
 
 model SubtesSoal {
-  id          String       @id @default(uuid())
-  subtesId    String
-  soalId      String
-  nomorSoal   Int
-
-  subtes      SubtesTryout @relation(fields: [subtesId], references: [id])
-  soal        Soal         @relation(fields: [soalId], references: [id])
+  id        String       @id @default(uuid())
+  subtesId  String
+  soalId    String
+  nomorSoal Int
+  soal      Soal         @relation(fields: [soalId], references: [id])
+  subtes    SubtesTryout @relation(fields: [subtesId], references: [id])
 }
 
 model SesiTryout {
-  id            String             @id @default(uuid())
-  tryoutId      String
-  userId        String
-  status        StatusSesiTryout   @default(IN_PROGRESS)
-  subtesAktif   String?            // id SubtesTryout yang sedang dikerjakan
-  subtesDeadline DateTime?         // deadline subtes aktif saat ini
-  skorTps       Int?
-  skorTka       Int?
-  skorTotal     Int?
-  mulaiAt       DateTime           @default(now())
-  selesaiAt     DateTime?
-
-  tryout        Tryout             @relation(fields: [tryoutId], references: [id])
-  user          User               @relation(fields: [userId], references: [id])
-  jawabans      JawabanTryout[]
+  id             String           @id @default(uuid())
+  tryoutId       String
+  userId         String
+  status         StatusSesiTryout @default(IN_PROGRESS)
+  subtesAktif    String?
+  subtesDeadline DateTime?
+  skorTps        Int?
+  skorTka        Int?
+  skorTotal      Int?
+  mulaiAt        DateTime         @default(now())
+  selesaiAt      DateTime?
+  jawabans       JawabanTryout[]
+  tryout         Tryout           @relation(fields: [tryoutId], references: [id])
+  user           User             @relation(fields: [userId], references: [id])
 }
 
 model JawabanTryout {
-  id        String      @id @default(uuid())
-  sesiId    String
-  soalId    String
-  jawaban   Json
-  benar     Boolean
+  id      String     @id @default(uuid())
+  sesiId  String
+  soalId  String
+  jawaban Json
+  benar   Boolean
+  sesi    SesiTryout @relation(fields: [sesiId], references: [id])
+  soal    Soal       @relation(fields: [soalId], references: [id])
+}
 
-  sesi      SesiTryout  @relation(fields: [sesiId], references: [id])
-  soal      Soal        @relation(fields: [soalId], references: [id])
+enum Role {
+  ADMIN
+  SISWA
+}
+
+enum TipeSoal {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  SHORT_ANSWER
+}
+
+enum StatusTryout {
+  DRAFT
+  PUBLISHED
+  ONGOING
+  ENDED
+}
+
+enum StatusSesiTryout {
+  IN_PROGRESS
+  SUBMITTED
+  EXPIRED
 }
