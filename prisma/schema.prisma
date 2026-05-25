@@ -20,6 +20,7 @@ model User {
   role      Role             @default(SISWA)
   createdAt DateTime         @default(now())
   sessions  LatihanSession[]
+  sesiTryouts   SesiTryout[]
 }
 
 enum TipeSoal {
@@ -41,6 +42,8 @@ model Soal {
   createdAt  DateTime @default(now())
 
   jawabans JawabanSiswa[]
+  subtesSoals   SubtesSoal[]
+  jawabanTryouts   JawabanTryout[]
 }
 
 model LatihanSession {
@@ -62,4 +65,82 @@ model JawabanSiswa {
   benar     Boolean
   session   LatihanSession @relation(fields: [sessionId], references: [id])
   soal      Soal           @relation(fields: [soalId], references: [id])
+}
+
+enum StatusTryout {
+  DRAFT        // dibuat admin, belum dipublish
+  PUBLISHED    // bisa dilihat siswa, belum bisa dikerjakan
+  ONGOING      // sedang berlangsung, siswa bisa mulai
+  ENDED        // waktu habis, tidak bisa dikerjakan lagi
+}
+
+enum StatusSesiTryout {
+  IN_PROGRESS  // siswa sedang mengerjakan
+  SUBMITTED    // siswa submit manual
+  EXPIRED      // waktu habis, auto-submit backend
+}
+
+model Tryout {
+  id            String        @id @default(uuid())
+  judul         String
+  deskripsi     String?
+  status        StatusTryout  @default(DRAFT)
+  mulaiAt       DateTime      // jadwal mulai — ditentukan admin
+  selesaiAt     DateTime      // jadwal selesai — ditentukan admin
+  durasiTps     Int           // durasi subtes TPS dalam menit
+  durasiTka     Int           // durasi subtes TKA dalam menit
+  createdAt     DateTime      @default(now())
+
+  subtes        SubtesTryout[]
+  sesi          SesiTryout[]
+}
+
+model SubtesTryout {
+  id        String   @id @default(uuid())
+  tryoutId  String
+  mapel     String   // "TPS" | "TKA_SAINTEK" | "TKA_SOSHUM"
+  urutan    Int      // 1 = TPS, 2 = TKA
+  durasi    Int      // durasi dalam menit
+
+  tryout    Tryout   @relation(fields: [tryoutId], references: [id])
+  soals     SubtesSoal[]
+}
+
+model SubtesSoal {
+  id          String       @id @default(uuid())
+  subtesId    String
+  soalId      String
+  nomorSoal   Int
+
+  subtes      SubtesTryout @relation(fields: [subtesId], references: [id])
+  soal        Soal         @relation(fields: [soalId], references: [id])
+}
+
+model SesiTryout {
+  id            String             @id @default(uuid())
+  tryoutId      String
+  userId        String
+  status        StatusSesiTryout   @default(IN_PROGRESS)
+  subtesAktif   String?            // id SubtesTryout yang sedang dikerjakan
+  subtesDeadline DateTime?         // deadline subtes aktif saat ini
+  skorTps       Int?
+  skorTka       Int?
+  skorTotal     Int?
+  mulaiAt       DateTime           @default(now())
+  selesaiAt     DateTime?
+
+  tryout        Tryout             @relation(fields: [tryoutId], references: [id])
+  user          User               @relation(fields: [userId], references: [id])
+  jawabans      JawabanTryout[]
+}
+
+model JawabanTryout {
+  id        String      @id @default(uuid())
+  sesiId    String
+  soalId    String
+  jawaban   Json
+  benar     Boolean
+
+  sesi      SesiTryout  @relation(fields: [sesiId], references: [id])
+  soal      Soal        @relation(fields: [soalId], references: [id])
 }
