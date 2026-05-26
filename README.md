@@ -6,17 +6,31 @@ REST API backend for the UTBK (Ujian Tulis Berbasis Komputer) preparation platfo
 
 ## Table of Contents
 
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Prerequisites](#prerequisites)
-- [Installation & Setup](#installation--setup)
-- [Environment Variables](#environment-variables)
-- [Database Setup](#database-setup)
-- [Role-Based Access Control (RBAC)](#role-based-access-control-rbac)
-- [API Endpoints](#api-endpoints)
-- [Running Locally](#running-locally)
-- [Deployment](#deployment)
-- [Project Structure](#project-structure)
+- [UTBK Backend](#utbk-backend)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Tech Stack](#tech-stack)
+  - [Prerequisites](#prerequisites)
+  - [Installation \& Setup](#installation--setup)
+  - [Environment Variables](#environment-variables)
+  - [Database Setup](#database-setup)
+    - [Migrations](#migrations)
+    - [Schema Overview](#schema-overview)
+    - [Migration History](#migration-history)
+  - [Role-Based Access Control (RBAC)](#role-based-access-control-rbac)
+    - [Roles](#roles)
+    - [How It Works](#how-it-works)
+    - [Creating an Admin User](#creating-an-admin-user)
+  - [API Endpoints](#api-endpoints)
+    - [Quick Reference](#quick-reference)
+    - [Tryout (`/api/v1/tryout`)](#tryout-apiv1tryout)
+    - [PTN \& Jurusan (`/api/v1/ptn`)](#ptn--jurusan-apiv1ptn)
+    - [Dashboard (`/api/v1/dashboard`)](#dashboard-apiv1dashboard)
+  - [Running Locally](#running-locally)
+  - [Deployment](#deployment)
+  - [Project Structure](#project-structure)
+  - [API Documentation](#api-documentation)
+    - [Base URL](#base-url)
 
 ---
 
@@ -34,15 +48,15 @@ REST API backend for the UTBK (Ujian Tulis Berbasis Komputer) preparation platfo
 
 ## Tech Stack
 
-| Layer        | Technology                          |
-|--------------|-------------------------------------|
-| Runtime      | Node.js                             |
-| Framework    | Express.js v5                       |
-| Language     | TypeScript                          |
-| ORM          | Prisma v6                           |
-| Database     | PostgreSQL (via Supabase)           |
-| Auth         | Supabase Auth (`@supabase/supabase-js`) |
-| Testing      | Vitest + Supertest                  |
+| Layer     | Technology                              |
+| --------- | --------------------------------------- |
+| Runtime   | Node.js                                 |
+| Framework | Express.js v5                           |
+| Language  | TypeScript                              |
+| ORM       | Prisma v6                               |
+| Database  | PostgreSQL (via Supabase)               |
+| Auth      | Supabase Auth (`@supabase/supabase-js`) |
+| Testing   | Vitest + Supertest                      |
 
 ---
 
@@ -100,13 +114,13 @@ DATABASE_URL=postgresql://...
 DIRECT_URL=postgresql://...
 ```
 
-| Variable              | Description                                                                 |
-|-----------------------|-----------------------------------------------------------------------------|
-| `SUPABASE_URL`        | Your Supabase project URL                                                   |
-| `SUPABASE_ANON_KEY`   | Public anon key for client-facing auth (sign up, sign in)                  |
-| `SUPABASE_SERVICE_KEY`| Service role key for server-side admin operations; **never expose publicly**|
-| `DATABASE_URL`        | Pooled connection string used by Prisma at runtime                          |
-| `DIRECT_URL`          | Direct connection string used by Prisma CLI for migrations                  |
+| Variable               | Description                                                                  |
+| ---------------------- | ---------------------------------------------------------------------------- |
+| `SUPABASE_URL`         | Your Supabase project URL                                                    |
+| `SUPABASE_ANON_KEY`    | Public anon key for client-facing auth (sign up, sign in)                    |
+| `SUPABASE_SERVICE_KEY` | Service role key for server-side admin operations; **never expose publicly** |
+| `DATABASE_URL`         | Pooled connection string used by Prisma at runtime                           |
+| `DIRECT_URL`           | Direct connection string used by Prisma CLI for migrations                   |
 
 Both `DATABASE_URL` and `DIRECT_URL` can be found in your Supabase dashboard under **Project Settings → Database → Connection string**.
 
@@ -195,10 +209,10 @@ Jurusan
 
 ### Migration History
 
-| Migration | Description |
-|-----------|-------------|
-| `20260521231034_init` | Initial schema — `User`, `Soal`, `LatihanSession`, `JawabanSiswa` tables |
-| `20260522000001_add_role_to_user` | Added `Role` enum (`ADMIN`, `SISWA`) and `role` column to `User` table |
+| Migration                         | Description                                                              |
+| --------------------------------- | ------------------------------------------------------------------------ |
+| `20260521231034_init`             | Initial schema — `User`, `Soal`, `LatihanSession`, `JawabanSiswa` tables |
+| `20260522000001_add_role_to_user` | Added `Role` enum (`ADMIN`, `SISWA`) and `role` column to `User` table   |
 
 ---
 
@@ -206,10 +220,10 @@ Jurusan
 
 ### Roles
 
-| Role    | Description                                                                 |
-|---------|-----------------------------------------------------------------------------|
+| Role    | Description                                                                                                                         |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | `SISWA` | Default role assigned to all newly registered users. Can access the question bank (read-only) and all latihan (practice) endpoints. |
-| `ADMIN` | Elevated role. Can manage questions (create, update, delete) and change the role of any user via `PATCH /auth/role`. |
+| `ADMIN` | Elevated role. Can manage questions (create, update, delete) and change the role of any user via `PATCH /auth/role`.                |
 
 ### How It Works
 
@@ -251,79 +265,67 @@ WHERE email = 'your-admin@example.com';
 
 ### Quick Reference
 
-| Method   | Endpoint                          | Auth | Role            | Description                        |
-|----------|-----------------------------------|------|-----------------|------------------------------------|
-| `GET`    | `/health`                         | —    | —               | Health check                       |
-| `POST`   | `/api/v1/auth/register`           | —    | —               | Register a new account             |
-| `POST`   | `/api/v1/auth/login`              | —    | —               | Login and receive tokens           |
-| `POST`   | `/api/v1/auth/logout`             | ✓    | Any             | Logout and invalidate token        |
-| `GET`    | `/api/v1/auth/me`                 | ✓    | Any             | Get current user profile           |
-| `PATCH`  | `/api/v1/auth/role`               | ✓    | `ADMIN`         | Change a user's role               |
-| `GET`    | `/api/v1/soal`                    | ✓    | Any             | List all questions (filterable)    |
-| `GET`    | `/api/v1/soal/:id`                | ✓    | Any             | Get a single question              |
-| `POST`   | `/api/v1/soal`                    | ✓    | `ADMIN`         | Create a question                  |
-| `PUT`    | `/api/v1/soal/:id`                | ✓    | `ADMIN`         | Update a question                  |
-| `DELETE` | `/api/v1/soal/:id`                | ✓    | `ADMIN`         | Delete a question                  |
-| `POST`   | `/api/v1/latihan/mulai`           | ✓    | `SISWA`         | Start a practice session           |
-| `POST`   | `/api/v1/latihan/:sessionId/submit` | ✓  | `SISWA`         | Submit answers for a session       |
-| `GET`    | `/api/v1/latihan/riwayat`         | ✓    | `SISWA`         | List all past sessions             |
-| `GET`    | `/api/v1/latihan/:sessionId`      | ✓    | `SISWA`         | Get session detail with results    |
-| `GET`    | `/api/v1/info/jalur`              | —    | —               | List all PTN admission pathways    |
-| `GET`    | `/api/v1/info/jalur/:slug`        | —    | —               | Get a specific admission pathway   |
-| `GET`    | `/api/v1/dashboard`               | ✓    | `SISWA`         | Get student dashboard analytics    |
-| `GET`    | `/api/v1/dashboard/admin`         | ✓    | `ADMIN`         | Get admin dashboard platform stats |
-| `GET`    | `/api/v1/rekomendasi`             | ✓    | `SISWA`         | Get major recommendations          |
-
+| Method   | Endpoint                            | Auth | Role    | Description                        |
+| -------- | ----------------------------------- | ---- | ------- | ---------------------------------- |
+| `GET`    | `/health`                           | —    | —       | Health check                       |
+| `POST`   | `/api/v1/auth/register`             | —    | —       | Register a new account             |
+| `POST`   | `/api/v1/auth/login`                | —    | —       | Login and receive tokens           |
+| `POST`   | `/api/v1/auth/logout`               | ✓    | Any     | Logout and invalidate token        |
+| `GET`    | `/api/v1/auth/me`                   | ✓    | Any     | Get current user profile           |
+| `PATCH`  | `/api/v1/auth/role`                 | ✓    | `ADMIN` | Change a user's role               |
+| `GET`    | `/api/v1/soal`                      | ✓    | Any     | List all questions (filterable)    |
+| `GET`    | `/api/v1/soal/:id`                  | ✓    | Any     | Get a single question              |
+| `POST`   | `/api/v1/soal`                      | ✓    | `ADMIN` | Create a question                  |
+| `PUT`    | `/api/v1/soal/:id`                  | ✓    | `ADMIN` | Update a question                  |
+| `DELETE` | `/api/v1/soal/:id`                  | ✓    | `ADMIN` | Delete a question                  |
+| `POST`   | `/api/v1/latihan/mulai`             | ✓    | `SISWA` | Start a practice session           |
+| `POST`   | `/api/v1/latihan/:sessionId/submit` | ✓    | `SISWA` | Submit answers for a session       |
+| `GET`    | `/api/v1/latihan/riwayat`           | ✓    | `SISWA` | List all past sessions             |
+| `GET`    | `/api/v1/latihan/:sessionId`        | ✓    | `SISWA` | Get session detail with results    |
+| `GET`    | `/api/v1/info/jalur`                | —    | —       | List all PTN admission pathways    |
+| `GET`    | `/api/v1/info/jalur/:slug`          | —    | —       | Get a specific admission pathway   |
+| `GET`    | `/api/v1/dashboard`                 | ✓    | `SISWA` | Get student dashboard analytics    |
+| `GET`    | `/api/v1/dashboard/admin`           | ✓    | `ADMIN` | Get admin dashboard platform stats |
+| `GET`    | `/api/v1/rekomendasi`               | ✓    | `SISWA` | Get major recommendations          |
 
 ### Tryout (`/api/v1/tryout`)
 
-| Method | Path | Role | Deskripsi |
-|--------|------|------|-----------|
-| POST | /api/v1/tryout | ADMIN | Buat tryout baru (status DRAFT) |
-| PATCH | /api/v1/tryout/:id/status | ADMIN | Update status tryout (DRAFT→PUBLISHED→ONGOING→ENDED) |
-| POST | /api/v1/tryout/:id/subtes | ADMIN | Tambah/replace soal di subtes TPS atau TKA |
-| DELETE | /api/v1/tryout/:id | ADMIN | Hapus tryout (hanya status DRAFT) |
-| GET | /api/v1/tryout | SISWA | Daftar tryout PUBLISHED dan ONGOING |
-| GET | /api/v1/tryout/:id | SISWA | Detail tryout |
-| POST | /api/v1/tryout/:id/mulai | SISWA | Mulai sesi tryout, mendapat soal TPS |
-| POST | /api/v1/tryout/sesi/:sesiId/submit-subtes | SISWA | Submit jawaban subtes aktif, lanjut ke subtes berikutnya |
-| POST | /api/v1/tryout/sesi/:sesiId/selesai | SISWA | Selesaikan tryout, hitung skor final |
-| GET | /api/v1/tryout/sesi/:sesiId/hasil | SISWA | Lihat hasil sesi tryout |
-| GET | /api/v1/tryout/sesi/riwayat | SISWA | Riwayat sesi tryout milik siswa |
+| Method | Path                                      | Role  | Deskripsi                                                |
+| ------ | ----------------------------------------- | ----- | -------------------------------------------------------- |
+| POST   | /api/v1/tryout                            | ADMIN | Buat tryout baru (status DRAFT)                          |
+| PATCH  | /api/v1/tryout/:id/status                 | ADMIN | Update status tryout (DRAFT→PUBLISHED→ONGOING→ENDED)     |
+| POST   | /api/v1/tryout/:id/subtes                 | ADMIN | Tambah/replace soal di subtes TPS atau TKA               |
+| DELETE | /api/v1/tryout/:id                        | ADMIN | Hapus tryout (hanya status DRAFT)                        |
+| GET    | /api/v1/tryout                            | SISWA | Daftar tryout PUBLISHED dan ONGOING                      |
+| GET    | /api/v1/tryout/:id                        | SISWA | Detail tryout                                            |
+| POST   | /api/v1/tryout/:id/mulai                  | SISWA | Mulai sesi tryout, mendapat soal TPS                     |
+| POST   | /api/v1/tryout/sesi/:sesiId/submit-subtes | SISWA | Submit jawaban subtes aktif, lanjut ke subtes berikutnya |
+| POST   | /api/v1/tryout/sesi/:sesiId/selesai       | SISWA | Selesaikan tryout, hitung skor final                     |
+| GET    | /api/v1/tryout/sesi/:sesiId/hasil         | SISWA | Lihat hasil sesi tryout                                  |
+| GET    | /api/v1/tryout/sesi/riwayat               | SISWA | Riwayat sesi tryout milik siswa                          |
 
 ### PTN & Jurusan (`/api/v1/ptn`)
 
-| Method | Path | Role | Deskripsi |
-|--------|------|------|-----------|
-| GET | /api/v1/ptn | Any | Daftar PTN (filterable by `provinsi`, `tipe`, `akreditasi`, `search`) |
-| GET | /api/v1/ptn/:id | Any | Detail PTN beserta semua jurusannya |
-| POST | /api/v1/ptn | ADMIN | Buat PTN baru |
-| PUT | /api/v1/ptn/:id | ADMIN | Update data PTN |
-| DELETE | /api/v1/ptn/:id | ADMIN | Hapus PTN beserta semua jurusannya |
-| GET | /api/v1/ptn/:ptnId/jurusan | Any | Daftar jurusan dari PTN tertentu (filterable by `kelompok`, `jenjang`, `search`) |
-| GET | /api/v1/ptn/jurusan | Any | Daftar semua jurusan dari semua PTN (filterable by `kelompok`, `jenjang`, `search`) |
-| GET | /api/v1/ptn/jurusan/:id | Any | Detail jurusan beserta data PTN |
-| POST | /api/v1/ptn/jurusan | ADMIN | Buat jurusan baru |
-| PUT | /api/v1/ptn/jurusan/:id | ADMIN | Update data jurusan |
-| DELETE | /api/v1/ptn/jurusan/:id | ADMIN | Hapus jurusan |
+| Method | Path                       | Role  | Deskripsi                                                                           |
+| ------ | -------------------------- | ----- | ----------------------------------------------------------------------------------- |
+| GET    | /api/v1/ptn                | Any   | Daftar PTN (filterable by `provinsi`, `tipe`, `akreditasi`, `search`)               |
+| GET    | /api/v1/ptn/:id            | Any   | Detail PTN beserta semua jurusannya                                                 |
+| POST   | /api/v1/ptn                | ADMIN | Buat PTN baru                                                                       |
+| PUT    | /api/v1/ptn/:id            | ADMIN | Update data PTN                                                                     |
+| DELETE | /api/v1/ptn/:id            | ADMIN | Hapus PTN beserta semua jurusannya                                                  |
+| GET    | /api/v1/ptn/:ptnId/jurusan | Any   | Daftar jurusan dari PTN tertentu (filterable by `kelompok`, `jenjang`, `search`)    |
+| GET    | /api/v1/ptn/jurusan        | Any   | Daftar semua jurusan dari semua PTN (filterable by `kelompok`, `jenjang`, `search`) |
+| GET    | /api/v1/ptn/jurusan/:id    | Any   | Detail jurusan beserta data PTN                                                     |
+| POST   | /api/v1/ptn/jurusan        | ADMIN | Buat jurusan baru                                                                   |
+| PUT    | /api/v1/ptn/jurusan/:id    | ADMIN | Update data jurusan                                                                 |
+| DELETE | /api/v1/ptn/jurusan/:id    | ADMIN | Hapus jurusan                                                                       |
 
 ### Dashboard (`/api/v1/dashboard`)
 
-| Method | Path | Role | Deskripsi |
-|--------|------|------|-----------|
-| GET | /api/v1/dashboard | SISWA | Dashboard siswa (overview & analisis belajar) |
-| GET | /api/v1/dashboard/admin | ADMIN | Dashboard admin (status platform, aktivitas, & top siswa) |
-
-### Rekomendasi (`/api/v1/rekomendasi`)
-
-| Method | Path | Role | Deskripsi |
-|--------|------|------|-----------|
-| GET | /api/v1/rekomendasi | SISWA | Daftar rekomendasi jurusan PTN berdasarkan rata-rata skor tryout |
-
-For full request/response schemas, see [`docs/API.md`](docs/API.md).
-
-
----
+| Method | Path                    | Role  | Deskripsi                                                 |
+| ------ | ----------------------- | ----- | --------------------------------------------------------- |
+| GET    | /api/v1/dashboard       | SISWA | Dashboard siswa (overview & analisis belajar)             |
+| GET    | /api/v1/dashboard/admin | ADMIN | Dashboard admin (status platform, aktivitas, & top siswa) |
 
 ## Running Locally
 
