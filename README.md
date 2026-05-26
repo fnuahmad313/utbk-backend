@@ -164,6 +164,33 @@ JawabanSiswa
   soalId    String   → Soal.id
   jawaban   Json
   benar     Boolean
+
+PTN
+  id          String   (UUID)
+  nama        String
+  singkatan   String
+  kota        String
+  provinsi    String
+  akreditasi  String   (Unggul | Baik Sekali | Baik | A | B | C)
+  tipe        String   (Universitas | Institut | Politeknik | Sekolah Tinggi)
+  website     String?
+  logoUrl     String?
+  deskripsi   String?
+  createdAt   DateTime
+
+Jurusan
+  id             String   (UUID)
+  ptnId          String   → PTN.id
+  nama           String
+  kode           String
+  fakultas       String
+  jenjang        String   (S1 | D3 | D4)
+  kelompok       String   (SAINTEK | SOSHUM | CAMPURAN)
+  dayaTampung    Int?
+  passingGrade   Float?
+  deskripsi      String?
+  prospekKerja   String?
+  createdAt      DateTime
 ```
 
 ### Migration History
@@ -259,6 +286,22 @@ WHERE email = 'your-admin@example.com';
 | POST | /api/v1/tryout/sesi/:sesiId/selesai | SISWA | Selesaikan tryout, hitung skor final |
 | GET | /api/v1/tryout/sesi/:sesiId/hasil | SISWA | Lihat hasil sesi tryout |
 | GET | /api/v1/tryout/sesi/riwayat | SISWA | Riwayat sesi tryout milik siswa |
+
+### PTN & Jurusan (`/api/v1/ptn`)
+
+| Method | Path | Role | Deskripsi |
+|--------|------|------|-----------|
+| GET | /api/v1/ptn | Any | Daftar PTN (filterable by `provinsi`, `tipe`, `akreditasi`, `search`) |
+| GET | /api/v1/ptn/:id | Any | Detail PTN beserta semua jurusannya |
+| POST | /api/v1/ptn | ADMIN | Buat PTN baru |
+| PUT | /api/v1/ptn/:id | ADMIN | Update data PTN |
+| DELETE | /api/v1/ptn/:id | ADMIN | Hapus PTN beserta semua jurusannya |
+| GET | /api/v1/ptn/:ptnId/jurusan | Any | Daftar jurusan dari PTN tertentu (filterable by `kelompok`, `jenjang`, `search`) |
+| GET | /api/v1/ptn/jurusan | Any | Daftar semua jurusan dari semua PTN (filterable by `kelompok`, `jenjang`, `search`) |
+| GET | /api/v1/ptn/jurusan/:id | Any | Detail jurusan beserta data PTN |
+| POST | /api/v1/ptn/jurusan | ADMIN | Buat jurusan baru |
+| PUT | /api/v1/ptn/jurusan/:id | ADMIN | Update data jurusan |
+| DELETE | /api/v1/ptn/jurusan/:id | ADMIN | Hapus jurusan |
 
 For full request/response schemas, see [`docs/API.md`](docs/API.md).
 
