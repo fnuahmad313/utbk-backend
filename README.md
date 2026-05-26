@@ -270,6 +270,10 @@ WHERE email = 'your-admin@example.com';
 | `GET`    | `/api/v1/latihan/:sessionId`      | ✓    | `SISWA`         | Get session detail with results    |
 | `GET`    | `/api/v1/info/jalur`              | —    | —               | List all PTN admission pathways    |
 | `GET`    | `/api/v1/info/jalur/:slug`        | —    | —               | Get a specific admission pathway   |
+| `GET`    | `/api/v1/dashboard`               | ✓    | `SISWA`         | Get student dashboard analytics    |
+| `GET`    | `/api/v1/dashboard/admin`         | ✓    | `ADMIN`         | Get admin dashboard platform stats |
+| `GET`    | `/api/v1/rekomendasi`             | ✓    | `SISWA`         | Get major recommendations          |
+
 
 ### Tryout (`/api/v1/tryout`)
 
@@ -303,7 +307,21 @@ WHERE email = 'your-admin@example.com';
 | PUT | /api/v1/ptn/jurusan/:id | ADMIN | Update data jurusan |
 | DELETE | /api/v1/ptn/jurusan/:id | ADMIN | Hapus jurusan |
 
+### Dashboard (`/api/v1/dashboard`)
+
+| Method | Path | Role | Deskripsi |
+|--------|------|------|-----------|
+| GET | /api/v1/dashboard | SISWA | Dashboard siswa (overview & analisis belajar) |
+| GET | /api/v1/dashboard/admin | ADMIN | Dashboard admin (status platform, aktivitas, & top siswa) |
+
+### Rekomendasi (`/api/v1/rekomendasi`)
+
+| Method | Path | Role | Deskripsi |
+|--------|------|------|-----------|
+| GET | /api/v1/rekomendasi | SISWA | Daftar rekomendasi jurusan PTN berdasarkan rata-rata skor tryout |
+
 For full request/response schemas, see [`docs/API.md`](docs/API.md).
+
 
 ---
 

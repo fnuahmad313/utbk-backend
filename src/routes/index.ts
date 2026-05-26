@@ -5,6 +5,8 @@ import latihanRoutes from "../modules/latihan/latihan.routes";
 import infoRoutes from "../modules/info/info.routes";
 import tryoutRoutes from "../modules/tryout/tryout.routes";
 import ptnRoutes from "../modules/ptn/ptn.routes";
+import dashboardRoutes from "../modules/dashboard/dashboard.routes";
+import rekomendasiRoutes from "../modules/rekomendasi/rekomendasi.routes";
 
 const router = Router();
 
@@ -14,5 +16,7 @@ router.use("/latihan", latihanRoutes);
 router.use("/info", infoRoutes);
 router.use("/tryout", tryoutRoutes);
 router.use("/ptn", ptnRoutes);
+router.use("/dashboard", dashboardRoutes);
+router.use("/rekomendasi", rekomendasiRoutes);
 
 export default router;

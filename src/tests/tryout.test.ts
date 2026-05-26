@@ -19,7 +19,10 @@ vi.mock('../config/supabase', () => ({
         if (token === 'admin-token') {
           return {
             data: {
-              user: { id: 'test-tryout-admin-uuid', email: 'admin@utbk.dev' },
+              user: {
+                id: 'test-tryout-admin-uuid',
+                email: 'admin-tryout@utbk.dev',
+              },
             },
             error: null,
           };
@@ -27,7 +30,10 @@ vi.mock('../config/supabase', () => ({
         if (token === 'siswa-token') {
           return {
             data: {
-              user: { id: 'test-tryout-siswa-uuid', email: 'siswa@utbk.dev' },
+              user: {
+                id: 'test-tryout-siswa-uuid',
+                email: 'siswa-tryout@utbk.dev',
+              },
             },
             error: null,
           };
@@ -47,6 +53,9 @@ beforeAll(async () => {
   });
   await prisma.sesiTryout.deleteMany({
     where: { userId: 'test-tryout-siswa-uuid' },
+  });
+  await prisma.sesiTryout.deleteMany({
+    where: { tryout: { judul: { startsWith: 'Test Tryout' } } },
   });
   await prisma.subtesSoal.deleteMany({
     where: { soal: { pertanyaan: { startsWith: 'Test Tryout' } } },

@@ -3311,6 +3311,300 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 
 ---
 
+### Dashboard
+
+#### GET /api/v1/dashboard
+
+**Deskripsi:** Mengambil data ringkasan dan analisis performa belajar siswa, termasuk overview latihan, overview tryout, statistik latihan per mata pelajaran, dan riwayat serta tren tryout.  
+**Auth required:** Ya  
+**Role required:** `SISWA`
+
+**Request Headers:**
+```
+Authorization: Bearer <siswa_access_token>
+```
+
+**Success Response** `200 OK`:
+```json
+{
+  "data": {
+    "overview": {
+      "totalLatihan": 2,
+      "totalTryout": 1,
+      "rataRataSkorLatihan": 70.0,
+      "rataRataSkorTryout": 72.0,
+      "totalSoalDijawab": 21
+    },
+    "latihanAnalytics": {
+      "perMapel": [
+        {
+          "mapel": "TPS",
+          "totalSesi": 1,
+          "rataRataSkor": 80.0,
+          "skorTertinggi": 80,
+          "skorTerendah": 80,
+          "trenSkor": [
+            {
+              "sesiId": "f7e8d9c0-b1a2-3456-7890-abcdef012345",
+              "skor": 80,
+              "tanggal": "2026-05-22T08:00:00.000Z"
+            }
+          ]
+        },
+        {
+          "mapel": "TKA_SAINTEK",
+          "totalSesi": 1,
+          "rataRataSkor": 60.0,
+          "skorTertinggi": 60,
+          "skorTerendah": 60,
+          "trenSkor": [
+            {
+              "sesiId": "e6d7c8b9-a0f1-2345-6789-abcdef012345",
+              "skor": 60,
+              "tanggal": "2026-05-22T09:00:00.000Z"
+            }
+          ]
+        }
+      ],
+      "kelemahanMapel": "TKA_SAINTEK"
+    },
+    "tryoutAnalytics": {
+      "riwayat": [
+        {
+          "sesiId": "cbb75c0d-ac8b-4939-9f24-b69379271c68",
+          "judulTryout": "Tryout UTBK Batch 1 2026",
+          "skorTps": 70,
+          "skorTka": 75,
+          "skorTotal": 72,
+          "status": "SUBMITTED",
+          "tanggal": "2026-05-25T10:00:00.000Z"
+        }
+      ],
+      "trenSkorTotal": [
+        {
+          "sesiId": "cbb75c0d-ac8b-4939-9f24-b69379271c68",
+          "judulTryout": "Tryout UTBK Batch 1 2026",
+          "skorTotal": 72,
+          "tanggal": "2026-05-25T10:00:00.000Z"
+        }
+      ],
+      "skorTerbaik": {
+        "sesiId": "cbb75c0d-ac8b-4939-9f24-b69379271c68",
+        "judulTryout": "Tryout UTBK Batch 1 2026",
+        "skorTotal": 72
+      },
+      "progressDariAwal": null
+    }
+  }
+}
+```
+
+**Error Responses:**
+
+`401 Unauthorized` — token tidak valid atau expired:
+```json
+{
+  "message": "Token tidak valid atau sudah expired"
+}
+```
+
+`403 Forbidden` — role pengakses bukan SISWA:
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: SISWA"
+}
+```
+
+---
+
+#### GET /api/v1/dashboard/admin
+
+**Deskripsi:** Mengambil data ringkasan performa dan statistik seluruh platform untuk admin, mencakup jumlah user, soal, ptn, jurusan, tryout, total aktivitas belajar, statistik tryout, dan daftar 10 siswa terbaik.  
+**Auth required:** Ya  
+**Role required:** `ADMIN`
+
+**Request Headers:**
+```
+Authorization: Bearer <admin_access_token>
+```
+
+**Success Response** `200 OK`:
+```json
+{
+  "data": {
+    "platform": {
+      "totalUser": 150,
+      "totalSoal": 500,
+      "totalPTN": 12,
+      "totalJurusan": 85,
+      "totalTryout": 5,
+      "totalTryoutOngoing": 1
+    },
+    "aktivitasBelajar": {
+      "totalSesiLatihan": 320,
+      "totalSesiTryout": 140,
+      "rataRataSkorLatihan": 68.5,
+      "rataRataSkorTryout": 62.3
+    },
+    "tryoutStats": [
+      {
+        "tryoutId": "cbb75c0d-ac8b-4939-9f24-b69379271c68",
+        "judul": "Tryout UTBK Batch 1 2026",
+        "status": "ENDED",
+        "totalPeserta": 95,
+        "rataRataSkorTotal": 65.2,
+        "skorTertinggi": 88.0,
+        "skorTerendah": 35.0
+      }
+    ],
+    "topSiswa": [
+      {
+        "userId": "test-rek-siswa-uuid",
+        "nama": "Test Siswa Rek",
+        "email": "siswa-rek@utbk.dev",
+        "totalTryout": 2,
+        "rataRataSkorTryout": 76.5
+      }
+    ]
+  }
+}
+```
+
+**Error Responses:**
+
+`401 Unauthorized` — token tidak valid atau expired:
+```json
+{
+  "message": "Token tidak valid atau sudah expired"
+}
+```
+
+`403 Forbidden` — role pengakses bukan ADMIN:
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: ADMIN"
+}
+```
+
+---
+
+### Rekomendasi
+
+#### GET /api/v1/rekomendasi
+
+**Deskripsi:** Mengambil daftar rekomendasi jurusan PTN berdasarkan rata-rata skor tryout siswa. Jurusan dikelompokkan dan diurutkan berdasarkan tingkat kelulusan (`aman`, `kompetitif`, `tantangan`) dan selisih passing grade.  
+**Auth required:** Ya  
+**Role required:** `SISWA`
+
+**Request Headers:**
+```
+Authorization: Bearer <siswa_access_token>
+```
+
+**Query Parameters:**
+
+| Parameter | Tipe   | Wajib | Nilai yang diterima                     | Deskripsi |
+|-----------|--------|-------|-----------------------------------------|-----------|
+| `kelompok`| string | Tidak | `SAINTEK`, `SOSHUM`, `CAMPURAN`          | Filter berdasarkan kelompok ujian |
+| `limit`   | number | Tidak | Integer antara 1 hingga 50 (default 10) | Membatasi jumlah rekomendasi |
+
+**Contoh Request:**
+```
+GET /api/v1/rekomendasi?kelompok=SAINTEK&limit=5
+```
+
+**Success Response** `200 OK`:
+```json
+{
+  "data": {
+    "skorReferensi": 715.0,
+    "totalRekomendasi": 3,
+    "rekomendasi": [
+      {
+        "jurusanId": "c3d4e5f6-a7b8-9012-cdef-012345678901",
+        "namaJurusan": "Ilmu Perpustakaan",
+        "fakultas": "Fakultas Ilmu Pengetahuan Budaya",
+        "jenjang": "S1",
+        "kelompok": "SOSHUM",
+        "ptn": {
+          "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+          "nama": "Universitas Indonesia",
+          "singkatan": "UI",
+          "kota": "Depok"
+        },
+        "passingGrade": 680.0,
+        "selisih": -35.0,
+        "kategori": "aman"
+      },
+      {
+        "jurusanId": "d4e5f6a7-b8c9-0123-cdef-012345678902",
+        "namaJurusan": "Sastra Indonesia",
+        "fakultas": "Fakultas Ilmu Pengetahuan Budaya",
+        "jenjang": "S1",
+        "kelompok": "SOSHUM",
+        "ptn": {
+          "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+          "nama": "Universitas Indonesia",
+          "singkatan": "UI",
+          "kota": "Depok"
+        },
+        "passingGrade": 720.0,
+        "selisih": 5.0,
+        "kategori": "kompetitif"
+      },
+      {
+        "jurusanId": "e5f6a7b8-c9d0-1234-cdef-012345678903",
+        "namaJurusan": "Ilmu Hukum",
+        "fakultas": "Fakultas Hukum",
+        "jenjang": "S1",
+        "kelompok": "SOSHUM",
+        "ptn": {
+          "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+          "nama": "Universitas Indonesia",
+          "singkatan": "UI",
+          "kota": "Depok"
+        },
+        "passingGrade": 750.0,
+        "selisih": 35.0,
+        "kategori": "tantangan"
+      }
+    ]
+  }
+}
+```
+
+**Error Responses:**
+
+`400 Bad Request` — belum memiliki data tryout yang selesai:
+```json
+{
+  "message": "Belum ada data tryout yang diselesaikan untuk menghitung skor referensi"
+}
+```
+
+`400 Bad Request` — filter kelompok tidak valid:
+```json
+{
+  "message": "Kelompok tidak valid, harus SAINTEK, SOSHUM, atau CAMPURAN"
+}
+```
+
+`401 Unauthorized` — token tidak valid atau expired:
+```json
+{
+  "message": "Token tidak valid atau sudah expired"
+}
+```
+
+`403 Forbidden` — role pengakses bukan SISWA:
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: SISWA"
+}
+```
+
+---
+
 ## Error Codes
 
 | Status Code | Deskripsi                                                        |
