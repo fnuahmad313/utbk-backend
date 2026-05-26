@@ -1,16 +1,15 @@
 import '../config/env';
-import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
-import supertest from "supertest";
-import app from "../app";
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
+import supertest from 'supertest';
+import app from '../app';
 
-// Declare global test scope variables
 let soalTpsId: string;
 let soalTkaId: string;
 let testTryoutId: string;
 let testSesiId: string;
 
-const adminToken = "admin-token";
-const siswaToken = "siswa-token";
+const adminToken = 'admin-token';
+const siswaToken = 'siswa-token';
 
 vi.mock('../config/supabase', () => ({
   supabase: { auth: { signUp: vi.fn(), signInWithPassword: vi.fn() } },
@@ -18,39 +17,70 @@ vi.mock('../config/supabase', () => ({
     auth: {
       getUser: vi.fn().mockImplementation(async (token: string) => {
         if (token === 'admin-token') {
-          return { data: { user: { id: 'test-tryout-admin-uuid', email: 'admin@utbk.dev' } }, error: null }
+          return {
+            data: {
+              user: { id: 'test-tryout-admin-uuid', email: 'admin@utbk.dev' },
+            },
+            error: null,
+          };
         }
         if (token === 'siswa-token') {
-          return { data: { user: { id: 'test-tryout-siswa-uuid', email: 'siswa@utbk.dev' } }, error: null }
+          return {
+            data: {
+              user: { id: 'test-tryout-siswa-uuid', email: 'siswa@utbk.dev' },
+            },
+            error: null,
+          };
         }
-        return { data: { user: null }, error: new Error('Token tidak valid') }
-      })
-    }
-  }
+        return { data: { user: null }, error: new Error('Token tidak valid') };
+      }),
+    },
+  },
 }));
 
 beforeAll(async () => {
   const { prisma } = await import('../config/prisma');
 
   // Pre-cleanup to ensure fresh start
-  await prisma.jawabanTryout.deleteMany({ where: { sesi: { userId: { in: ['test-tryout-siswa-uuid'] } } } });
-  await prisma.sesiTryout.deleteMany({ where: { userId: 'test-tryout-siswa-uuid' } });
-  await prisma.subtesSoal.deleteMany({ where: { soal: { pertanyaan: { startsWith: 'Test Tryout' } } } });
-  await prisma.subtesTryout.deleteMany({ where: { tryout: { judul: { startsWith: 'Test Tryout' } } } });
-  await prisma.tryout.deleteMany({ where: { judul: { startsWith: 'Test Tryout' } } });
-  await prisma.soal.deleteMany({ where: { pertanyaan: { startsWith: 'Test Tryout' } } });
+  await prisma.jawabanTryout.deleteMany({
+    where: { sesi: { userId: { in: ['test-tryout-siswa-uuid'] } } },
+  });
+  await prisma.sesiTryout.deleteMany({
+    where: { userId: 'test-tryout-siswa-uuid' },
+  });
+  await prisma.subtesSoal.deleteMany({
+    where: { soal: { pertanyaan: { startsWith: 'Test Tryout' } } },
+  });
+  await prisma.subtesTryout.deleteMany({
+    where: { tryout: { judul: { startsWith: 'Test Tryout' } } },
+  });
+  await prisma.tryout.deleteMany({
+    where: { judul: { startsWith: 'Test Tryout' } },
+  });
+  await prisma.soal.deleteMany({
+    where: { pertanyaan: { startsWith: 'Test Tryout' } },
+  });
 
-  // Upsert user test
   await prisma.user.upsert({
     where: { id: 'test-tryout-admin-uuid' },
     update: {},
-    create: { id: 'test-tryout-admin-uuid', email: 'admin@utbk.dev', name: 'Test Admin', role: 'ADMIN' }
+    create: {
+      id: 'test-tryout-admin-uuid',
+      email: 'admin-tryout@utbk.dev',
+      name: 'Test Admin',
+      role: 'ADMIN',
+    },
   });
 
   await prisma.user.upsert({
     where: { id: 'test-tryout-siswa-uuid' },
     update: {},
-    create: { id: 'test-tryout-siswa-uuid', email: 'siswa@utbk.dev', name: 'Test Siswa', role: 'SISWA' }
+    create: {
+      id: 'test-tryout-siswa-uuid',
+      email: 'siswa-tryout@utbk.dev',
+      name: 'Test Siswa',
+      role: 'SISWA',
+    },
   });
 
   // Buat soal test untuk TPS dan TKA
@@ -62,8 +92,8 @@ beforeAll(async () => {
       jawaban: 'A',
       pembahasan: 'Pembahasan TPS 1',
       mapel: 'TPS',
-      tingkat: 'mudah'
-    }
+      tingkat: 'mudah',
+    },
   });
 
   const soalTka = await prisma.soal.create({
@@ -74,8 +104,8 @@ beforeAll(async () => {
       jawaban: 'B',
       pembahasan: 'Pembahasan TKA 1',
       mapel: 'TKA_SAINTEK',
-      tingkat: 'mudah'
-    }
+      tingkat: 'mudah',
+    },
   });
 
   soalTpsId = soalTps.id;
@@ -86,13 +116,27 @@ afterAll(async () => {
   const { prisma } = await import('../config/prisma');
 
   // Urutan hapus wajib diikuti karena foreign key
-  await prisma.jawabanTryout.deleteMany({ where: { sesi: { userId: { in: ['test-tryout-siswa-uuid'] } } } });
-  await prisma.sesiTryout.deleteMany({ where: { userId: 'test-tryout-siswa-uuid' } });
-  await prisma.subtesSoal.deleteMany({ where: { soal: { pertanyaan: { startsWith: 'Test Tryout' } } } });
-  await prisma.subtesTryout.deleteMany({ where: { tryout: { judul: { startsWith: 'Test Tryout' } } } });
-  await prisma.tryout.deleteMany({ where: { judul: { startsWith: 'Test Tryout' } } });
-  await prisma.soal.deleteMany({ where: { pertanyaan: { startsWith: 'Test Tryout' } } });
-  await prisma.user.deleteMany({ where: { id: { in: ['test-tryout-admin-uuid', 'test-tryout-siswa-uuid'] } } });
+  await prisma.jawabanTryout.deleteMany({
+    where: { sesi: { userId: { in: ['test-tryout-siswa-uuid'] } } },
+  });
+  await prisma.sesiTryout.deleteMany({
+    where: { userId: 'test-tryout-siswa-uuid' },
+  });
+  await prisma.subtesSoal.deleteMany({
+    where: { soal: { pertanyaan: { startsWith: 'Test Tryout' } } },
+  });
+  await prisma.subtesTryout.deleteMany({
+    where: { tryout: { judul: { startsWith: 'Test Tryout' } } },
+  });
+  await prisma.tryout.deleteMany({
+    where: { judul: { startsWith: 'Test Tryout' } },
+  });
+  await prisma.soal.deleteMany({
+    where: { pertanyaan: { startsWith: 'Test Tryout' } },
+  });
+  await prisma.user.deleteMany({
+    where: { id: { in: ['test-tryout-admin-uuid', 'test-tryout-siswa-uuid'] } },
+  });
 });
 
 describe('POST /api/v1/tryout', () => {
@@ -106,7 +150,7 @@ describe('POST /api/v1/tryout', () => {
         mulaiAt: '2026-06-01T08:00:00.000Z',
         selesaiAt: '2026-06-01T14:00:00.000Z',
         durasiTps: 150,
-        durasiTka: 90
+        durasiTka: 90,
       });
     expect(res.status).toBe(403);
   });
@@ -120,7 +164,7 @@ describe('POST /api/v1/tryout', () => {
         mulaiAt: '2026-06-01T08:00:00.000Z',
         selesaiAt: '2026-06-01T14:00:00.000Z',
         durasiTps: 150,
-        durasiTka: 0
+        durasiTka: 0,
       });
     expect(res.status).toBe(400);
   });
@@ -134,7 +178,7 @@ describe('POST /api/v1/tryout', () => {
         mulaiAt: '2026-06-01T14:00:00.000Z',
         selesaiAt: '2026-06-01T08:00:00.000Z',
         durasiTps: 150,
-        durasiTka: 90
+        durasiTka: 90,
       });
     expect(res.status).toBe(400);
   });
@@ -149,7 +193,7 @@ describe('POST /api/v1/tryout', () => {
         mulaiAt: '2026-06-01T08:00:00.000Z',
         selesaiAt: '2026-06-01T14:00:00.000Z',
         durasiTps: 150,
-        durasiTka: 90
+        durasiTka: 90,
       });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('data');
@@ -168,7 +212,7 @@ describe('POST /api/v1/tryout/:id/subtes', () => {
       .set('Authorization', `Bearer ${adminToken}`)
       .send({
         mapel: 'TPS',
-        soalIds: [soalTpsId]
+        soalIds: [soalTpsId],
       });
     expect(res.status).toBe(200);
   });
@@ -179,7 +223,7 @@ describe('POST /api/v1/tryout/:id/subtes', () => {
       .set('Authorization', `Bearer ${adminToken}`)
       .send({
         mapel: 'TKA_SAINTEK',
-        soalIds: [soalTkaId]
+        soalIds: [soalTkaId],
       });
     expect(res.status).toBe(200);
   });
@@ -190,7 +234,7 @@ describe('POST /api/v1/tryout/:id/subtes', () => {
       .set('Authorization', `Bearer ${adminToken}`)
       .send({
         mapel: 'TKA_CAMPURAN',
-        soalIds: [soalTkaId]
+        soalIds: [soalTkaId],
       });
     expect(res.status).toBe(400);
   });
@@ -201,7 +245,7 @@ describe('POST /api/v1/tryout/:id/subtes', () => {
       .set('Authorization', `Bearer ${adminToken}`)
       .send({
         mapel: 'TPS',
-        soalIds: []
+        soalIds: [],
       });
     expect(res.status).toBe(400);
   });
@@ -218,7 +262,7 @@ describe('PATCH /api/v1/tryout/:id/status', () => {
         mulaiAt: '2026-06-01T08:00:00.000Z',
         selesaiAt: '2026-06-01T14:00:00.000Z',
         durasiTps: 150,
-        durasiTka: 90
+        durasiTka: 90,
       });
     const emptyId = newTryoutRes.body.data.id;
 
@@ -278,7 +322,7 @@ describe('GET /api/v1/tryout', () => {
         mulaiAt: '2026-06-01T08:00:00.000Z',
         selesaiAt: '2026-06-01T14:00:00.000Z',
         durasiTps: 150,
-        durasiTka: 90
+        durasiTka: 90,
       });
     const draftId = draftRes.body.data.id;
 
@@ -333,7 +377,7 @@ describe('POST /api/v1/tryout/sesi/:sesiId/submit-subtes', () => {
       .post(`/api/v1/tryout/sesi/${testSesiId}/submit-subtes`)
       .set('Authorization', `Bearer ${adminToken}`) // admin is not the siswa who started it
       .send({
-        jawabans: [{ soalId: soalTpsId, jawaban: 'A' }]
+        jawabans: [{ soalId: soalTpsId, jawaban: 'A' }],
       });
     expect(res.status).toBe(403);
   });
@@ -343,7 +387,7 @@ describe('POST /api/v1/tryout/sesi/:sesiId/submit-subtes', () => {
       .post(`/api/v1/tryout/sesi/${testSesiId}/submit-subtes`)
       .set('Authorization', `Bearer ${siswaToken}`)
       .send({
-        jawabans: [{ soalId: soalTpsId, jawaban: 'A' }]
+        jawabans: [{ soalId: soalTpsId, jawaban: 'A' }],
       });
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveProperty('skorSubtesTps');
@@ -359,7 +403,7 @@ describe('POST /api/v1/tryout/sesi/:sesiId/selesai', () => {
       .post(`/api/v1/tryout/sesi/${testSesiId}/selesai`)
       .set('Authorization', `Bearer ${siswaToken}`)
       .send({
-        jawabans: [{ soalId: soalTkaId, jawaban: 'B' }]
+        jawabans: [{ soalId: soalTkaId, jawaban: 'B' }],
       });
     expect(res.status).toBe(200);
     expect(res.body.data.skorTps).toBe(100);
@@ -372,7 +416,7 @@ describe('POST /api/v1/tryout/sesi/:sesiId/selesai', () => {
       .post(`/api/v1/tryout/sesi/${testSesiId}/selesai`)
       .set('Authorization', `Bearer ${siswaToken}`)
       .send({
-        jawabans: [{ soalId: soalTkaId, jawaban: 'B' }]
+        jawabans: [{ soalId: soalTkaId, jawaban: 'B' }],
       });
     expect(res.status).toBe(400);
   });
@@ -398,7 +442,7 @@ describe('GET /api/v1/tryout/sesi/:sesiId/hasil', () => {
         mulaiAt: '2026-06-01T08:00:00.000Z',
         selesaiAt: '2026-06-01T14:00:00.000Z',
         durasiTps: 150,
-        durasiTka: 90
+        durasiTka: 90,
       });
     const pTryoutId = draftRes.body.data.id;
 
@@ -456,7 +500,7 @@ describe('DELETE /api/v1/tryout/:id', () => {
         mulaiAt: '2026-06-01T08:00:00.000Z',
         selesaiAt: '2026-06-01T14:00:00.000Z',
         durasiTps: 150,
-        durasiTka: 90
+        durasiTka: 90,
       });
     const delId = draftRes.body.data.id;
 

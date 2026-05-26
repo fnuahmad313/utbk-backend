@@ -4,6 +4,7 @@ import soalRoutes from "../modules/soal/soal.routes";
 import latihanRoutes from "../modules/latihan/latihan.routes";
 import infoRoutes from "../modules/info/info.routes";
 import tryoutRoutes from "../modules/tryout/tryout.routes";
+import ptnRoutes from "../modules/ptn/ptn.routes";
 
 const router = Router();
 
@@ -12,5 +13,6 @@ router.use("/soal", soalRoutes);
 router.use("/latihan", latihanRoutes);
 router.use("/info", infoRoutes);
 router.use("/tryout", tryoutRoutes);
+router.use("/ptn", ptnRoutes);
 
 export default router;

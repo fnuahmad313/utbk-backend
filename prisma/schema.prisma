@@ -114,6 +114,39 @@ model JawabanTryout {
   soal    Soal       @relation(fields: [soalId], references: [id])
 }
 
+model PTN {
+  id          String    @id @default(uuid())
+  nama        String
+  singkatan   String
+  kota        String
+  provinsi    String
+  akreditasi  String    // "A" | "B" | "Unggul" | "Baik Sekali" | "Baik"
+  tipe        String    // "Universitas" | "Institut" | "Politeknik" | "Sekolah Tinggi"
+  website     String?
+  logoUrl     String?
+  deskripsi   String?
+  createdAt   DateTime  @default(now())
+
+  jurusans    Jurusan[]
+}
+
+model Jurusan {
+  id             String   @id @default(uuid())
+  ptnId          String
+  nama           String
+  kode           String
+  fakultas       String
+  jenjang        String   // "S1" | "D3" | "D4"
+  kelompok       String   // "SAINTEK" | "SOSHUM" | "CAMPURAN"
+  dayaTampung    Int?
+  passingGrade   Float?
+  deskripsi      String?
+  prospekKerja   String?
+  createdAt      DateTime @default(now())
+
+  ptn            PTN @relation(fields: [ptnId], references: [id])
+}
+
 enum Role {
   ADMIN
   SISWA

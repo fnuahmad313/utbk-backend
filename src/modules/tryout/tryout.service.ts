@@ -1,5 +1,5 @@
-import { TipeSoal, StatusTryout, StatusSesiTryout } from "@prisma/client";
-import { prisma } from "../../config/prisma";
+import { TipeSoal, StatusTryout, StatusSesiTryout } from '@prisma/client';
+import { prisma } from '../../config/prisma';
 
 export interface CreateTryoutInput {
   judul: string;
@@ -23,12 +23,16 @@ export interface SubmitAnswersInput {
 }
 
 const allowedTransitions: Record<string, string[]> = {
-  DRAFT: ["PUBLISHED"],
-  PUBLISHED: ["ONGOING"],
-  ONGOING: ["ENDED"],
+  DRAFT: ['PUBLISHED'],
+  PUBLISHED: ['ONGOING'],
+  ONGOING: ['ENDED'],
 };
 
-export const hitungBenar = (tipe: TipeSoal, kunci: any, jawaban: any): boolean => {
+export const hitungBenar = (
+  tipe: TipeSoal,
+  kunci: any,
+  jawaban: any
+): boolean => {
   switch (tipe) {
     case TipeSoal.SINGLE_CHOICE:
       return String(kunci).trim() === String(jawaban).trim();
@@ -41,12 +45,16 @@ export const hitungBenar = (tipe: TipeSoal, kunci: any, jawaban: any): boolean =
       return JSON.stringify(kunciSorted) === JSON.stringify(jawabanSorted);
 
     case TipeSoal.TRUE_FALSE:
-      if (typeof kunci !== "object" || typeof jawaban !== "object") return false;
+      if (typeof kunci !== 'object' || typeof jawaban !== 'object')
+        return false;
       if (Array.isArray(kunci) || Array.isArray(jawaban)) return false;
       return JSON.stringify(kunci) === JSON.stringify(jawaban);
 
     case TipeSoal.SHORT_ANSWER:
-      return String(kunci).trim().toLowerCase() === String(jawaban).trim().toLowerCase();
+      return (
+        String(kunci).trim().toLowerCase() ===
+        String(jawaban).trim().toLowerCase()
+      );
 
     default:
       return false;
@@ -56,32 +64,32 @@ export const hitungBenar = (tipe: TipeSoal, kunci: any, jawaban: any): boolean =
 export const createTryout = async (input: CreateTryoutInput) => {
   const { judul, deskripsi, mulaiAt, selesaiAt, durasiTps, durasiTka } = input;
 
-  if (!judul || typeof judul !== "string" || judul.trim() === "") {
-    return { error: "judul_invalid" };
+  if (!judul || typeof judul !== 'string' || judul.trim() === '') {
+    return { error: 'judul_invalid' };
   }
   const start = new Date(mulaiAt);
   const end = new Date(selesaiAt);
   if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-    return { error: "date_invalid" };
+    return { error: 'date_invalid' };
   }
   if (end <= start) {
-    return { error: "selesai_at_before_mulai_at" };
+    return { error: 'selesai_at_before_mulai_at' };
   }
   if (
     durasiTps === undefined ||
-    typeof durasiTps !== "number" ||
+    typeof durasiTps !== 'number' ||
     durasiTps <= 0 ||
     !Number.isInteger(durasiTps)
   ) {
-    return { error: "durasi_tps_invalid" };
+    return { error: 'durasi_tps_invalid' };
   }
   if (
     durasiTka === undefined ||
-    typeof durasiTka !== "number" ||
+    typeof durasiTka !== 'number' ||
     durasiTka <= 0 ||
     !Number.isInteger(durasiTka)
   ) {
-    return { error: "durasi_tka_invalid" };
+    return { error: 'durasi_tka_invalid' };
   }
 
   const result = await prisma.$transaction(async (tx) => {
@@ -93,7 +101,7 @@ export const createTryout = async (input: CreateTryoutInput) => {
         selesaiAt: end,
         durasiTps,
         durasiTka,
-        status: "DRAFT",
+        status: 'DRAFT',
       },
     });
 
@@ -101,13 +109,13 @@ export const createTryout = async (input: CreateTryoutInput) => {
       data: [
         {
           tryoutId: tryout.id,
-          mapel: "TPS",
+          mapel: 'TPS',
           urutan: 1,
           durasi: durasiTps,
         },
         {
           tryoutId: tryout.id,
-          mapel: "TKA_SAINTEK", // default TKA Saintek as required by addendum
+          mapel: 'TKA_SAINTEK', // default TKA Saintek as required by addendum
           urutan: 2,
           durasi: durasiTka,
         },
@@ -138,22 +146,22 @@ export const updateStatus = async (id: string, newStatus: string) => {
   });
 
   if (!tryout) {
-    return { error: "tryout_not_found" };
+    return { error: 'tryout_not_found' };
   }
 
   const validTransitions = allowedTransitions[tryout.status] || [];
   if (!validTransitions.includes(newStatus)) {
-    return { error: "invalid_status_transition" };
+    return { error: 'invalid_status_transition' };
   }
 
-  if (newStatus === "PUBLISHED") {
+  if (newStatus === 'PUBLISHED') {
     const subtesTps = tryout.subtes.find((s) => s.urutan === 1);
     const subtesTka = tryout.subtes.find((s) => s.urutan === 2);
     if (!subtesTps || subtesTps._count.soals === 0) {
-      return { error: "tps_subtes_empty" };
+      return { error: 'tps_subtes_empty' };
     }
     if (!subtesTka || subtesTka._count.soals === 0) {
-      return { error: "tka_subtes_empty" };
+      return { error: 'tka_subtes_empty' };
     }
   }
 
@@ -171,11 +179,11 @@ export const addSoalSubtes = async (
   mapel: string,
   soalIds: string[]
 ) => {
-  if (!["TPS", "TKA_SAINTEK", "TKA_SOSHUM"].includes(mapel)) {
-    return { error: "invalid_mapel" };
+  if (!['TPS', 'TKA_SAINTEK', 'TKA_SOSHUM'].includes(mapel)) {
+    return { error: 'invalid_mapel' };
   }
   if (!Array.isArray(soalIds) || soalIds.length === 0) {
-    return { error: "empty_soal_ids" };
+    return { error: 'empty_soal_ids' };
   }
 
   const tryout = await prisma.tryout.findUnique({
@@ -184,11 +192,11 @@ export const addSoalSubtes = async (
   });
 
   if (!tryout) {
-    return { error: "tryout_not_found" };
+    return { error: 'tryout_not_found' };
   }
 
-  if (tryout.status !== "DRAFT") {
-    return { error: "tryout_not_draft" };
+  if (tryout.status !== 'DRAFT') {
+    return { error: 'tryout_not_draft' };
   }
 
   // Verify all soalIds exist in DB
@@ -196,16 +204,16 @@ export const addSoalSubtes = async (
     where: { id: { in: soalIds } },
   });
   if (existCount !== soalIds.length) {
-    return { error: "some_soal_ids_invalid" };
+    return { error: 'some_soal_ids_invalid' };
   }
 
   let subtes =
-    mapel === "TPS"
+    mapel === 'TPS'
       ? tryout.subtes.find((s) => s.urutan === 1)
       : tryout.subtes.find((s) => s.urutan === 2);
 
   if (!subtes) {
-    return { error: "subtes_not_found" };
+    return { error: 'subtes_not_found' };
   }
 
   // Update mapel of the subtest if it differs
@@ -233,7 +241,7 @@ export const addSoalSubtes = async (
     await tx.subtesSoal.createMany({ data });
   });
 
-  return { message: "Soal berhasil ditambahkan ke subtes" };
+  return { message: 'Soal berhasil ditambahkan ke subtes' };
 };
 
 export const deleteTryout = async (id: string) => {
@@ -243,11 +251,11 @@ export const deleteTryout = async (id: string) => {
   });
 
   if (!tryout) {
-    return { error: "tryout_not_found" };
+    return { error: 'tryout_not_found' };
   }
 
-  if (tryout.status !== "DRAFT") {
-    return { error: "tryout_not_draft" };
+  if (tryout.status !== 'DRAFT') {
+    return { error: 'tryout_not_draft' };
   }
 
   const subtesIds = tryout.subtes.map((s) => s.id);
@@ -264,7 +272,7 @@ export const deleteTryout = async (id: string) => {
     }),
   ]);
 
-  return { message: "Tryout berhasil dihapus" };
+  return { message: 'Tryout berhasil dihapus' };
 };
 
 export const getTryoutList = async () => {
@@ -273,24 +281,24 @@ export const getTryoutList = async () => {
   // Auto-update status
   await prisma.tryout.updateMany({
     where: {
-      status: "PUBLISHED",
+      status: 'PUBLISHED',
       mulaiAt: { lte: now },
     },
-    data: { status: "ONGOING" },
+    data: { status: 'ONGOING' },
   });
 
   await prisma.tryout.updateMany({
     where: {
-      status: "ONGOING",
+      status: 'ONGOING',
       selesaiAt: { lte: now },
     },
-    data: { status: "ENDED" },
+    data: { status: 'ENDED' },
   });
 
   // Fetch only PUBLISHED or ONGOING
   const tryouts = await prisma.tryout.findMany({
     where: {
-      status: { in: ["PUBLISHED", "ONGOING"] },
+      status: { in: ['PUBLISHED', 'ONGOING'] },
     },
     include: {
       subtes: {
@@ -317,7 +325,7 @@ export const getTryoutList = async () => {
       durasiTka: t.durasiTka,
       totalSoalTps: subtesTps?._count.soals || 0,
       totalSoalTka: subtesTka?._count.soals || 0,
-      mapelTka: subtesTka?.mapel || "TKA_SAINTEK", // As required by addendum!
+      mapelTka: subtesTka?.mapel || 'TKA_SAINTEK', // As required by addendum!
     };
   });
 
@@ -338,12 +346,10 @@ export const getTryoutById = async (id: string, role: string) => {
     },
   });
 
-if (!tryout) {
-  return { error: 'tryout_not_found' }     
-}
-if (tryout.status !== 'ONGOING') {
-  return { error: 'tryout_not_ongoing' }     
-}
+  if (!tryout) {
+    return { error: 'tryout_not_found' };
+  }
+
   return { data: tryout };
 };
 
@@ -354,16 +360,16 @@ export const startSesiTryout = async (tryoutId: string, userId: string) => {
   });
 
   if (!tryout) {
-    return { error: "tryout_not_found" };
+    return { error: 'tryout_not_found' };
   }
 
-  if (tryout.status !== "ONGOING") {
-    return { error: "tryout_not_ongoing" };
+  if (tryout.status !== 'ONGOING') {
+    return { error: 'tryout_not_ongoing' };
   }
 
   const now = new Date();
   if (now > tryout.selesaiAt) {
-    return { error: "tryout_already_ended" };
+    return { error: 'tryout_already_ended' };
   }
 
   // Check if user already has an IN_PROGRESS session
@@ -371,17 +377,17 @@ export const startSesiTryout = async (tryoutId: string, userId: string) => {
     where: {
       tryoutId,
       userId,
-      status: "IN_PROGRESS",
+      status: 'IN_PROGRESS',
     },
   });
 
   if (existingSesi) {
-    return { error: "already_has_active_session" };
+    return { error: 'already_has_active_session' };
   }
 
   const tpsSubtes = tryout.subtes.find((s) => s.urutan === 1);
   if (!tpsSubtes) {
-    return { error: "tps_subtes_not_found" };
+    return { error: 'tps_subtes_not_found' };
   }
 
   const deadline = new Date(now.getTime() + tpsSubtes.durasi * 60 * 1000);
@@ -390,7 +396,7 @@ export const startSesiTryout = async (tryoutId: string, userId: string) => {
     data: {
       tryoutId,
       userId,
-      status: "IN_PROGRESS",
+      status: 'IN_PROGRESS',
       subtesAktif: tpsSubtes.id,
       subtesDeadline: deadline,
       mulaiAt: now,
@@ -400,7 +406,7 @@ export const startSesiTryout = async (tryoutId: string, userId: string) => {
   // Get all questions for TPS
   const subtesSoals = await prisma.subtesSoal.findMany({
     where: { subtesId: tpsSubtes.id },
-    orderBy: { nomorSoal: "asc" },
+    orderBy: { nomorSoal: 'asc' },
     include: {
       soal: {
         select: {
@@ -454,29 +460,31 @@ export const submitSubtes = async (
   });
 
   if (!sesi) {
-    return { error: "session_not_found" };
+    return { error: 'session_not_found' };
   }
 
   if (sesi.userId !== userId) {
-    return { error: "unauthorized" };
+    return { error: 'unauthorized' };
   }
 
-  if (sesi.status !== "IN_PROGRESS" && sesi.status !== "EXPIRED") {
-    return { error: "session_not_active" };
+  if (sesi.status !== 'IN_PROGRESS' && sesi.status !== 'EXPIRED') {
+    return { error: 'session_not_active' };
   }
 
   if (!sesi.subtesAktif) {
-    return { error: "no_active_subtest" };
+    return { error: 'no_active_subtest' };
   }
 
-  const currentSubtes = sesi.tryout.subtes.find((s) => s.id === sesi.subtesAktif);
+  const currentSubtes = sesi.tryout.subtes.find(
+    (s) => s.id === sesi.subtesAktif
+  );
   if (!currentSubtes) {
-    return { error: "active_subtest_not_found" };
+    return { error: 'active_subtest_not_found' };
   }
 
   const now = new Date();
   const isExpired = sesi.subtesDeadline ? now > sesi.subtesDeadline : false;
-  const isSesiExpired = sesi.status === "EXPIRED" || isExpired;
+  const isSesiExpired = sesi.status === 'EXPIRED' || isExpired;
 
   // Fetch all questions for active subtest
   const subtesSoals = await prisma.subtesSoal.findMany({
@@ -522,7 +530,7 @@ export const submitSubtes = async (
           subtesAktif: nextSubtes.id,
           subtesDeadline: deadline,
           skorTps: skor,
-          status: isSesiExpired ? "EXPIRED" : "IN_PROGRESS",
+          status: isSesiExpired ? 'EXPIRED' : 'IN_PROGRESS',
         },
       }),
     ]);
@@ -530,7 +538,7 @@ export const submitSubtes = async (
     // Fetch TKA questions
     const nextSubtesSoals = await prisma.subtesSoal.findMany({
       where: { subtesId: nextSubtes.id },
-      orderBy: { nomorSoal: "asc" },
+      orderBy: { nomorSoal: 'asc' },
       include: {
         soal: {
           select: {
@@ -572,13 +580,13 @@ export const submitSubtes = async (
         where: { id: sesiId },
         data: {
           skorTps: skor,
-          status: isSesiExpired ? "EXPIRED" : "IN_PROGRESS",
+          status: isSesiExpired ? 'EXPIRED' : 'IN_PROGRESS',
         },
       }),
     ]);
 
     return {
-      message: "Subtes selesai, lanjutkan ke /selesai",
+      message: 'Subtes selesai, lanjutkan ke /selesai',
     };
   }
 };
@@ -600,36 +608,38 @@ export const selesaiTryout = async (
   });
 
   if (!sesi) {
-    return { error: "session_not_found" };
+    return { error: 'session_not_found' };
   }
 
   if (sesi.userId !== userId) {
-    return { error: "unauthorized" };
+    return { error: 'unauthorized' };
   }
 
-  if (sesi.status !== "IN_PROGRESS" && sesi.status !== "EXPIRED") {
-    return { error: "session_not_active" };
+  if (sesi.status !== 'IN_PROGRESS' && sesi.status !== 'EXPIRED') {
+    return { error: 'session_not_active' };
   }
 
   if (!sesi.subtesAktif) {
-    return { error: "no_active_subtest" };
+    return { error: 'no_active_subtest' };
   }
 
-  const currentSubtes = sesi.tryout.subtes.find((s) => s.id === sesi.subtesAktif);
+  const currentSubtes = sesi.tryout.subtes.find(
+    (s) => s.id === sesi.subtesAktif
+  );
   if (!currentSubtes) {
-    return { error: "active_subtest_not_found" };
+    return { error: 'active_subtest_not_found' };
   }
 
   // Ensure currentSubtes is the last one (urutan 2)
   const maxUrutan = Math.max(...sesi.tryout.subtes.map((s) => s.urutan));
   if (currentSubtes.urutan !== maxUrutan) {
-    return { error: "not_the_last_subtest" };
+    return { error: 'not_the_last_subtest' };
   }
 
   const now = new Date();
   const isExpired = sesi.subtesDeadline ? now > sesi.subtesDeadline : false;
-  const isSesiExpired = sesi.status === "EXPIRED" || isExpired;
-  const finalStatus = isSesiExpired ? "EXPIRED" : "SUBMITTED";
+  const isSesiExpired = sesi.status === 'EXPIRED' || isExpired;
+  const finalStatus = isSesiExpired ? 'EXPIRED' : 'SUBMITTED';
 
   // Score TKA questions
   const subtesSoals = await prisma.subtesSoal.findMany({
@@ -657,7 +667,8 @@ export const selesaiTryout = async (
     });
   }
 
-  const skorTka = totalSoal > 0 ? Math.round((jumlahBenar / totalSoal) * 100) : 0;
+  const skorTka =
+    totalSoal > 0 ? Math.round((jumlahBenar / totalSoal) * 100) : 0;
   const skorTps = sesi.skorTps || 0;
   const skorTotal = Math.round((skorTps + skorTka) / 2);
 
@@ -709,24 +720,26 @@ export const getHasilSesi = async (sesiId: string, userId: string) => {
   });
 
   if (!sesi) {
-    return { error: "session_not_found" };
+    return { error: 'session_not_found' };
   }
 
   if (sesi.userId !== userId) {
-    return { error: "unauthorized" };
+    return { error: 'unauthorized' };
   }
 
-  if (sesi.status === "IN_PROGRESS") {
-    return { error: "session_still_in_progress" };
+  if (sesi.status === 'IN_PROGRESS') {
+    return { error: 'session_still_in_progress' };
   }
 
   const detailSubtes = sesi.tryout.subtes.map((sub) => {
     const subtesSoalIds = sub.soals.map((s) => s.soalId);
-    const subJawabans = sesi.jawabans.filter((j) => subtesSoalIds.includes(j.soalId));
+    const subJawabans = sesi.jawabans.filter((j) =>
+      subtesSoalIds.includes(j.soalId)
+    );
     const totalSoal = sub.soals.length;
     const jumlahBenar = subJawabans.filter((j) => j.benar).length;
     const jumlahSalah = totalSoal - jumlahBenar;
-    const skor = sub.urutan === 1 ? (sesi.skorTps || 0) : (sesi.skorTka || 0);
+    const skor = sub.urutan === 1 ? sesi.skorTps || 0 : sesi.skorTka || 0;
 
     return {
       mapel: sub.mapel,
@@ -759,7 +772,7 @@ export const getHasilSesi = async (sesiId: string, userId: string) => {
 export const getRiwayatSesi = async (userId: string) => {
   const sessions = await prisma.sesiTryout.findMany({
     where: { userId },
-    orderBy: { mulaiAt: "desc" },
+    orderBy: { mulaiAt: 'desc' },
     include: {
       tryout: {
         select: {
