@@ -1,0 +1,26 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const auth_routes_1 = __importDefault(require("../modules/auth/auth.routes"));
+const soal_routes_1 = __importDefault(require("../modules/soal/soal.routes"));
+const latihan_routes_1 = __importDefault(require("../modules/latihan/latihan.routes"));
+const info_routes_1 = __importDefault(require("../modules/info/info.routes"));
+const tryout_routes_1 = __importDefault(require("../modules/tryout/tryout.routes"));
+const ptn_routes_1 = __importDefault(require("../modules/ptn/ptn.routes"));
+const dashboard_routes_1 = __importDefault(require("../modules/dashboard/dashboard.routes"));
+const rekomendasi_routes_1 = __importDefault(require("../modules/rekomendasi/rekomendasi.routes"));
+const forum_routes_1 = __importDefault(require("../modules/forum/forum.routes"));
+const router = (0, express_1.Router)();
+router.use("/auth", auth_routes_1.default);
+router.use("/soal", soal_routes_1.default);
+router.use("/latihan", latihan_routes_1.default);
+router.use("/info", info_routes_1.default);
+router.use("/tryout", tryout_routes_1.default);
+router.use("/ptn", ptn_routes_1.default);
+router.use("/dashboard", dashboard_routes_1.default);
+router.use("/rekomendasi", rekomendasi_routes_1.default);
+router.use("/forum", forum_routes_1.default);
+exports.default = router;

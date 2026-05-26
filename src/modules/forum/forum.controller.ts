@@ -53,7 +53,7 @@ export const createKategori = async (req: AuthRequest, res: Response) => {
     const { nama, deskripsi } = req.body
     const result = await ForumService.createKategori(nama, deskripsi)
     if ('error' in result) {
-      handleError(res, result.error)
+      handleError(res, result.error as string)
       return
     }
     res.status(201).json({ data: result.data })
@@ -64,11 +64,11 @@ export const createKategori = async (req: AuthRequest, res: Response) => {
 
 export const updateKategori = async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     const { nama, deskripsi } = req.body
     const result = await ForumService.updateKategori(id, { nama, deskripsi })
     if ('error' in result) {
-      handleError(res, result.error)
+      handleError(res, result.error as string)
       return
     }
     res.json({ data: result.data })
@@ -79,10 +79,10 @@ export const updateKategori = async (req: AuthRequest, res: Response) => {
 
 export const deleteKategori = async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     const result = await ForumService.deleteKategori(id)
     if ('error' in result) {
-      handleError(res, result.error)
+      handleError(res, result.error as string)
       return
     }
     res.json({ message: result.message })
@@ -121,7 +121,7 @@ export const getPostList = async (req: AuthRequest, res: Response) => {
 
 export const getPostById = async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     const userId = req.user?.id
 
     if (!userId) {
@@ -131,7 +131,7 @@ export const getPostById = async (req: AuthRequest, res: Response) => {
 
     const result = await ForumService.getPostById(id, userId)
     if ('error' in result) {
-      handleError(res, result.error)
+      handleError(res, result.error as string)
       return
     }
     res.json({ data: result.data })
@@ -151,7 +151,7 @@ export const createPost = async (req: AuthRequest, res: Response) => {
     const { kategoriId, judul, konten } = req.body
     const result = await ForumService.createPost(userId, { kategoriId, judul, konten })
     if ('error' in result) {
-      handleError(res, result.error)
+      handleError(res, result.error as string)
       return
     }
     res.status(201).json({ data: result.data })
@@ -162,7 +162,7 @@ export const createPost = async (req: AuthRequest, res: Response) => {
 
 export const updatePost = async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     const userId = req.user?.id
     if (!userId) {
       res.status(401).json({ message: 'Unauthorized' })
@@ -172,7 +172,7 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
     const { judul, konten } = req.body
     const result = await ForumService.updatePost(id, userId, { judul, konten })
     if ('error' in result) {
-      handleError(res, result.error)
+      handleError(res, result.error as string)
       return
     }
     res.json({ data: result.data })
@@ -183,7 +183,7 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
 
 export const deletePost = async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     const userId = req.user?.id
     const role = req.user?.role
 
@@ -194,7 +194,7 @@ export const deletePost = async (req: AuthRequest, res: Response) => {
 
     const result = await ForumService.deletePost(id, userId, role)
     if ('error' in result) {
-      handleError(res, result.error)
+      handleError(res, result.error as string)
       return
     }
     res.json({ message: result.message })
@@ -205,7 +205,7 @@ export const deletePost = async (req: AuthRequest, res: Response) => {
 
 export const toggleLikePost = async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     const userId = req.user?.id
 
     if (!userId) {
@@ -215,7 +215,7 @@ export const toggleLikePost = async (req: AuthRequest, res: Response) => {
 
     const result = await ForumService.toggleLikePost(id, userId)
     if ('error' in result) {
-      handleError(res, result.error)
+      handleError(res, result.error as string)
       return
     }
     res.json({ data: result.data })
@@ -226,10 +226,10 @@ export const toggleLikePost = async (req: AuthRequest, res: Response) => {
 
 export const togglePinPost = async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     const result = await ForumService.togglePinPost(id)
     if ('error' in result) {
-      handleError(res, result.error)
+      handleError(res, result.error as string)
       return
     }
     res.json({ data: result.data })
@@ -240,10 +240,10 @@ export const togglePinPost = async (req: AuthRequest, res: Response) => {
 
 export const toggleLockPost = async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     const result = await ForumService.toggleLockPost(id)
     if ('error' in result) {
-      handleError(res, result.error)
+      handleError(res, result.error as string)
       return
     }
     res.json({ data: result.data })
@@ -258,7 +258,7 @@ export const toggleLockPost = async (req: AuthRequest, res: Response) => {
 
 export const createKomentar = async (req: AuthRequest, res: Response) => {
   try {
-    const { postId } = req.params
+    const postId = req.params.postId as string
     const userId = req.user?.id
     if (!userId) {
       res.status(401).json({ message: 'Unauthorized' })
@@ -268,7 +268,7 @@ export const createKomentar = async (req: AuthRequest, res: Response) => {
     const { konten, parentId } = req.body
     const result = await ForumService.createKomentar(postId, userId, { konten, parentId })
     if ('error' in result) {
-      handleError(res, result.error)
+      handleError(res, result.error as string)
       return
     }
     res.status(201).json({ data: result.data })
@@ -279,7 +279,7 @@ export const createKomentar = async (req: AuthRequest, res: Response) => {
 
 export const updateKomentar = async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     const userId = req.user?.id
     if (!userId) {
       res.status(401).json({ message: 'Unauthorized' })
@@ -289,7 +289,7 @@ export const updateKomentar = async (req: AuthRequest, res: Response) => {
     const { konten } = req.body
     const result = await ForumService.updateKomentar(id, userId, konten)
     if ('error' in result) {
-      handleError(res, result.error)
+      handleError(res, result.error as string)
       return
     }
     res.json({ data: result.data })
@@ -300,7 +300,7 @@ export const updateKomentar = async (req: AuthRequest, res: Response) => {
 
 export const deleteKomentar = async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     const userId = req.user?.id
     const role = req.user?.role
 
@@ -311,7 +311,7 @@ export const deleteKomentar = async (req: AuthRequest, res: Response) => {
 
     const result = await ForumService.deleteKomentar(id, userId, role)
     if ('error' in result) {
-      handleError(res, result.error)
+      handleError(res, result.error as string)
       return
     }
     res.json({ message: result.message })
@@ -322,7 +322,7 @@ export const deleteKomentar = async (req: AuthRequest, res: Response) => {
 
 export const toggleLikeKomentar = async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     const userId = req.user?.id
 
     if (!userId) {
@@ -332,7 +332,7 @@ export const toggleLikeKomentar = async (req: AuthRequest, res: Response) => {
 
     const result = await ForumService.toggleLikeKomentar(id, userId)
     if ('error' in result) {
-      handleError(res, result.error)
+      handleError(res, result.error as string)
       return
     }
     res.json({ data: result.data })
