@@ -16,6 +16,11 @@ model User {
   role        Role             @default(SISWA)
   sessions    LatihanSession[]
   sesiTryouts SesiTryout[]
+
+  forumPosts         ForumPost[]
+  forumKomentar      ForumKomentar[]
+  forumPostLikes     ForumPostLike[]
+  forumKomentarLikes ForumKomentarLike[]
 }
 
 model Soal {
@@ -100,7 +105,7 @@ model SesiTryout {
   mulaiAt        DateTime         @default(now())
   selesaiAt      DateTime?
   jawabans       JawabanTryout[]
-  tryout         Tryout           @relation(fields: [tryoutId], references: [id])
+  tryout         Tryout           @relation(fields: [tryoutId], references: [id], onDelete: Cascade)
   user           User             @relation(fields: [userId], references: [id])
 }
 
@@ -171,3 +176,74 @@ enum StatusSesiTryout {
   SUBMITTED
   EXPIRED
 }
+
+model KategoriForumPost {
+  id          String   @id @default(uuid())
+  nama        String   @unique
+  slug        String   @unique  // url-friendly, contoh: "diskusi-soal"
+  deskripsi   String?
+  createdAt   DateTime @default(now())
+
+  posts       ForumPost[]
+}
+
+model ForumPost {
+  id          String   @id @default(uuid())
+  userId      String
+  kategoriId  String
+  judul       String
+  konten      String
+  likeCount   Int      @default(0)
+  viewCount   Int      @default(0)
+  isPinned    Boolean  @default(false)  // admin bisa pin post
+  isLocked    Boolean  @default(false)  // admin bisa lock post (tidak bisa dikomentari)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User              @relation(fields: [userId], references: [id])
+  kategori    KategoriForumPost @relation(fields: [kategoriId], references: [id])
+  komentar    ForumKomentar[]
+  likes       ForumPostLike[]
+}
+
+model ForumKomentar {
+  id          String   @id @default(uuid())
+  postId      String
+  userId      String
+  parentId    String?  // null = komentar level 1, diisi = reply (level 2)
+  konten      String
+  likeCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  post        ForumPost       @relation(fields: [postId], references: [id])
+  user        User            @relation(fields: [userId], references: [id])
+  parent      ForumKomentar?  @relation("KomentarReplies", fields: [parentId], references: [id])
+  replies     ForumKomentar[] @relation("KomentarReplies")
+  likes       ForumKomentarLike[]
+}
+
+model ForumPostLike {
+  id        String   @id @default(uuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  post      ForumPost @relation(fields: [postId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@unique([postId, userId])  // satu user hanya bisa like satu kali per post
+}
+
+model ForumKomentarLike {
+  id          String   @id @default(uuid())
+  komentarId  String
+  userId      String
+  createdAt   DateTime @default(now())
+
+  komentar    ForumKomentar @relation(fields: [komentarId], references: [id])
+  user        User          @relation(fields: [userId], references: [id])
+
+  @@unique([komentarId, userId])  // satu user hanya bisa like satu kali per komentar
+}
+

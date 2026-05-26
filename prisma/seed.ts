@@ -338,6 +338,27 @@ async function main() {
   } else {
     console.log('Data PTN sudah ada, skip seeding PTN.')
   }
+
+  console.log('Seeding kategori forum...')
+
+  const existingKategori = await prisma.kategoriForumPost.findFirst({
+    where: { slug: 'diskusi-soal' }
+  })
+
+  if (!existingKategori) {
+    await prisma.kategoriForumPost.createMany({
+      data: [
+        { nama: 'Diskusi Soal', slug: 'diskusi-soal', deskripsi: 'Bahas soal UTBK yang sulit bersama' },
+        { nama: 'Tips & Trik', slug: 'tips-trik', deskripsi: 'Bagikan strategi dan tips belajar efektif' },
+        { nama: 'Tanya Jawab', slug: 'tanya-jawab', deskripsi: 'Tanya hal umum seputar UTBK dan persiapan' },
+        { nama: 'Info PTN', slug: 'info-ptn', deskripsi: 'Diskusi seputar kampus, jurusan, dan kehidupan mahasiswa' },
+        { nama: 'Curhat & Motivasi', slug: 'curhat-motivasi', deskripsi: 'Cerita pengalaman dan saling menyemangati' },
+      ]
+    })
+    console.log('Kategori forum berhasil di-seed.')
+  } else {
+    console.log('Kategori forum sudah ada, skip seeding.')
+  }
 }
 
 main()
