@@ -1758,6 +1758,1559 @@ Authorization: Bearer <siswa_access_token>
 
 ---
 
+### PTN & Jurusan
+
+> Semua endpoint PTN dan Jurusan membutuhkan autentikasi (`Authorization: Bearer <token>`). Endpoint mutasi (POST, PUT, DELETE) hanya bisa diakses oleh user dengan role `ADMIN`.
+
+#### GET /api/v1/ptn
+
+**Deskripsi:** Mengambil daftar semua PTN. Mendukung filter dan pencarian.
+**Auth required:** Ya
+**Role required:** `ADMIN` atau `SISWA`
+
+**Request Headers:**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Query Parameters:**
+
+| Parameter    | Tipe   | Wajib | Nilai yang diterima                                              |
+|--------------|--------|-------|------------------------------------------------------------------|
+| `provinsi`   | string | Tidak | Nama provinsi, contoh: `Jawa Barat`                              |
+| `tipe`       | string | Tidak | `Universitas`, `Institut`, `Politeknik`, `Sekolah Tinggi`        |
+| `akreditasi` | string | Tidak | `Unggul`, `Baik Sekali`, `Baik`, `A`, `B`, `C`                   |
+| `search`     | string | Tidak | Pencarian parsial (case-insensitive) pada `nama` atau `singkatan`|
+
+**Contoh Request:**
+```
+GET /api/v1/ptn?provinsi=Jawa Barat&tipe=Universitas
+GET /api/v1/ptn?search=UI
+```
+
+**Success Response** `200 OK`:
+```json
+{
+  "data": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "nama": "Universitas Indonesia",
+      "singkatan": "UI",
+      "kota": "Depok",
+      "provinsi": "Jawa Barat",
+      "akreditasi": "Unggul",
+      "tipe": "Universitas",
+      "website": "https://www.ui.ac.id",
+      "logoUrl": null,
+      "deskripsi": "Universitas terkemuka di Indonesia yang berlokasi di Depok, Jawa Barat.",
+      "createdAt": "2026-05-26T02:00:00.000Z",
+      "_count": {
+        "jurusans": 12
+      }
+    },
+    {
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "nama": "Universitas Gadjah Mada",
+      "singkatan": "UGM",
+      "kota": "Yogyakarta",
+      "provinsi": "Daerah Istimewa Yogyakarta",
+      "akreditasi": "Unggul",
+      "tipe": "Universitas",
+      "website": "https://www.ugm.ac.id",
+      "logoUrl": null,
+      "deskripsi": "Universitas negeri tertua di Indonesia yang berlokasi di Yogyakarta.",
+      "createdAt": "2026-05-26T02:00:00.000Z",
+      "_count": {
+        "jurusans": 18
+      }
+    }
+  ]
+}
+```
+
+---
+
+#### GET /api/v1/ptn/:id
+
+**Deskripsi:** Mengambil detail satu PTN beserta seluruh daftar jurusannya.
+**Auth required:** Ya
+**Role required:** `ADMIN` atau `SISWA`
+
+**Request Headers:**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi    |
+|-----------|--------|-------|--------------|
+| `id`      | string | Ya    | UUID dari PTN|
+
+**Success Response** `200 OK`:
+```json
+{
+  "data": {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "nama": "Universitas Indonesia",
+    "singkatan": "UI",
+    "kota": "Depok",
+    "provinsi": "Jawa Barat",
+    "akreditasi": "Unggul",
+    "tipe": "Universitas",
+    "website": "https://www.ui.ac.id",
+    "logoUrl": null,
+    "deskripsi": "Universitas terkemuka di Indonesia yang berlokasi di Depok, Jawa Barat.",
+    "createdAt": "2026-05-26T02:00:00.000Z",
+    "jurusans": [
+      {
+        "id": "c3d4e5f6-a7b8-9012-cdef-012345678901",
+        "ptnId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "nama": "Ilmu Komputer",
+        "kode": "UI-IK",
+        "fakultas": "Fakultas Ilmu Komputer",
+        "jenjang": "S1",
+        "kelompok": "SAINTEK",
+        "dayaTampung": 120,
+        "passingGrade": 750.5,
+        "deskripsi": "Program studi yang mempelajari ilmu komputer dan pemrograman.",
+        "prospekKerja": "Software Engineer, Data Scientist, AI Engineer",
+        "createdAt": "2026-05-26T02:00:00.000Z"
+      }
+    ]
+  }
+}
+```
+
+**Error Responses:**
+
+`404 Not Found` — PTN tidak ditemukan:
+```json
+{
+  "message": "PTN tidak ditemukan"
+}
+```
+
+---
+
+#### POST /api/v1/ptn
+
+**Deskripsi:** Membuat data PTN baru.
+**Auth required:** Ya
+**Role required:** `ADMIN`
+
+**Request Headers:**
+```
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
+```
+
+**Request Body:**
+
+| Field        | Tipe   | Wajib | Validasi                                                          |
+|--------------|--------|-------|-------------------------------------------------------------------|
+| `nama`       | string | Ya    | Tidak boleh kosong                                                |
+| `singkatan`  | string | Ya    | Tidak boleh kosong                                                |
+| `kota`       | string | Ya    | Tidak boleh kosong                                                |
+| `provinsi`   | string | Ya    | Tidak boleh kosong                                                |
+| `akreditasi` | string | Ya    | `Unggul`, `Baik Sekali`, `Baik`, `A`, `B`, atau `C`              |
+| `tipe`       | string | Ya    | `Universitas`, `Institut`, `Politeknik`, atau `Sekolah Tinggi`    |
+| `website`    | string | Tidak | URL website PTN                                                   |
+| `logoUrl`    | string | Tidak | URL logo PTN                                                      |
+| `deskripsi`  | string | Tidak | Deskripsi singkat PTN                                             |
+
+```json
+{
+  "nama": "Institut Teknologi Bandung",
+  "singkatan": "ITB",
+  "kota": "Bandung",
+  "provinsi": "Jawa Barat",
+  "akreditasi": "Unggul",
+  "tipe": "Institut",
+  "website": "https://www.itb.ac.id",
+  "deskripsi": "Institut teknologi terbaik di Indonesia yang terletak di Bandung."
+}
+```
+
+**Success Response** `201 Created`:
+```json
+{
+  "data": {
+    "id": "d4e5f6a7-b8c9-0123-4567-890abcdef012",
+    "nama": "Institut Teknologi Bandung",
+    "singkatan": "ITB",
+    "kota": "Bandung",
+    "provinsi": "Jawa Barat",
+    "akreditasi": "Unggul",
+    "tipe": "Institut",
+    "website": "https://www.itb.ac.id",
+    "logoUrl": null,
+    "deskripsi": "Institut teknologi terbaik di Indonesia yang terletak di Bandung.",
+    "createdAt": "2026-05-26T03:00:00.000Z"
+  }
+}
+```
+
+**Error Responses:**
+
+`400 Bad Request` — field wajib tidak diisi:
+```json
+{
+  "message": "Field nama, singkatan, kota, provinsi, akreditasi, dan tipe wajib diisi"
+}
+```
+
+`400 Bad Request` — tipe tidak valid:
+```json
+{
+  "message": "Tipe PTN tidak valid"
+}
+```
+
+`400 Bad Request` — akreditasi tidak valid:
+```json
+{
+  "message": "Akreditasi PTN tidak valid"
+}
+```
+
+`403 Forbidden` — role pengakses bukan ADMIN:
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: ADMIN"
+}
+```
+
+---
+
+#### PUT /api/v1/ptn/:id
+
+**Deskripsi:** Mengupdate data PTN. Hanya field yang dikirim yang akan diupdate (partial update).
+**Auth required:** Ya
+**Role required:** `ADMIN`
+
+**Request Headers:**
+```
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi    |
+|-----------|--------|-------|--------------|
+| `id`      | string | Ya    | UUID dari PTN|
+
+**Request Body (semua field opsional):**
+```json
+{
+  "kota": "Bandung Barat",
+  "akreditasi": "Unggul",
+  "website": "https://www.itb.ac.id"
+}
+```
+
+**Success Response** `200 OK`:
+```json
+{
+  "data": {
+    "id": "d4e5f6a7-b8c9-0123-4567-890abcdef012",
+    "nama": "Institut Teknologi Bandung",
+    "singkatan": "ITB",
+    "kota": "Bandung Barat",
+    "provinsi": "Jawa Barat",
+    "akreditasi": "Unggul",
+    "tipe": "Institut",
+    "website": "https://www.itb.ac.id",
+    "logoUrl": null,
+    "deskripsi": "Institut teknologi terbaik di Indonesia yang terletak di Bandung.",
+    "createdAt": "2026-05-26T03:00:00.000Z"
+  }
+}
+```
+
+**Error Responses:**
+
+`400 Bad Request` — tipe atau akreditasi tidak valid:
+```json
+{
+  "message": "Tipe PTN tidak valid"
+}
+```
+
+`403 Forbidden` — role pengakses bukan ADMIN:
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: ADMIN"
+}
+```
+
+`404 Not Found` — PTN tidak ditemukan:
+```json
+{
+  "message": "PTN tidak ditemukan"
+}
+```
+
+---
+
+#### DELETE /api/v1/ptn/:id
+
+**Deskripsi:** Menghapus PTN beserta **seluruh jurusan** yang dimilikinya secara permanen.
+**Auth required:** Ya
+**Role required:** `ADMIN`
+
+**Request Headers:**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi    |
+|-----------|--------|-------|--------------|
+| `id`      | string | Ya    | UUID dari PTN|
+
+**Success Response** `200 OK`:
+```json
+{
+  "message": "PTN dan semua jurusan berhasil dihapus"
+}
+```
+
+**Error Responses:**
+
+`403 Forbidden` — role pengakses bukan ADMIN:
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: ADMIN"
+}
+```
+
+`404 Not Found` — PTN tidak ditemukan:
+```json
+{
+  "message": "PTN tidak ditemukan"
+}
+```
+
+---
+
+#### GET /api/v1/ptn/:ptnId/jurusan
+
+**Deskripsi:** Mengambil daftar seluruh jurusan milik satu PTN. Mendukung filter opsional.
+**Auth required:** Ya
+**Role required:** `ADMIN` atau `SISWA`
+
+**Request Headers:**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi    |
+|-----------|--------|-------|--------------|
+| `ptnId`   | string | Ya    | UUID dari PTN|
+
+**Query Parameters:**
+
+| Parameter  | Tipe   | Wajib | Nilai yang diterima                      |
+|------------|--------|-------|------------------------------------------|
+| `kelompok` | string | Tidak | `SAINTEK`, `SOSHUM`, `CAMPURAN`          |
+| `jenjang`  | string | Tidak | `S1`, `D3`, `D4`                         |
+| `search`   | string | Tidak | Pencarian parsial pada `nama` atau `fakultas`|
+
+**Contoh Request:**
+```
+GET /api/v1/ptn/a1b2c3d4-e5f6-7890-abcd-ef1234567890/jurusan?kelompok=SAINTEK
+```
+
+**Success Response** `200 OK`:
+```json
+{
+  "data": [
+    {
+      "id": "c3d4e5f6-a7b8-9012-cdef-012345678901",
+      "ptnId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "nama": "Ilmu Komputer",
+      "kode": "UI-IK",
+      "fakultas": "Fakultas Ilmu Komputer",
+      "jenjang": "S1",
+      "kelompok": "SAINTEK",
+      "dayaTampung": 120,
+      "passingGrade": 750.5,
+      "deskripsi": "Program studi yang mempelajari ilmu komputer dan pemrograman.",
+      "prospekKerja": "Software Engineer, Data Scientist, AI Engineer",
+      "createdAt": "2026-05-26T02:00:00.000Z"
+    }
+  ]
+}
+```
+
+**Error Responses:**
+
+`404 Not Found` — PTN tidak ditemukan:
+```json
+{
+  "message": "PTN tidak ditemukan"
+}
+```
+
+---
+
+#### GET /api/v1/ptn/jurusan
+
+**Deskripsi:** Mengambil daftar seluruh jurusan dari semua PTN, beserta informasi PTN masing-masing. Mendukung filter dan pencarian.
+**Auth required:** Ya
+**Role required:** `ADMIN` atau `SISWA`
+
+**Request Headers:**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Query Parameters:**
+
+| Parameter  | Tipe   | Wajib | Nilai yang diterima                          |
+|------------|--------|-------|----------------------------------------------|
+| `kelompok` | string | Tidak | `SAINTEK`, `SOSHUM`, `CAMPURAN`              |
+| `jenjang`  | string | Tidak | `S1`, `D3`, `D4`                             |
+| `search`   | string | Tidak | Pencarian parsial pada `nama` atau `fakultas`|
+
+**Contoh Request:**
+```
+GET /api/v1/ptn/jurusan?kelompok=SAINTEK&jenjang=S1
+GET /api/v1/ptn/jurusan?search=Teknik Informatika
+```
+
+**Success Response** `200 OK`:
+```json
+{
+  "data": [
+    {
+      "id": "c3d4e5f6-a7b8-9012-cdef-012345678901",
+      "ptnId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "nama": "Ilmu Komputer",
+      "kode": "UI-IK",
+      "fakultas": "Fakultas Ilmu Komputer",
+      "jenjang": "S1",
+      "kelompok": "SAINTEK",
+      "dayaTampung": 120,
+      "passingGrade": 750.5,
+      "deskripsi": "Program studi yang mempelajari ilmu komputer dan pemrograman.",
+      "prospekKerja": "Software Engineer, Data Scientist, AI Engineer",
+      "createdAt": "2026-05-26T02:00:00.000Z",
+      "ptn": {
+        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "nama": "Universitas Indonesia",
+        "singkatan": "UI",
+        "kota": "Depok"
+      }
+    },
+    {
+      "id": "e5f6a7b8-c9d0-1234-5678-90abcdef0123",
+      "ptnId": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "nama": "Teknik Informatika",
+      "kode": "ITB-IF",
+      "fakultas": "Sekolah Teknik Elektro dan Informatika",
+      "jenjang": "S1",
+      "kelompok": "SAINTEK",
+      "dayaTampung": 100,
+      "passingGrade": 780.0,
+      "deskripsi": "Program studi teknik informatika dengan fokus pada rekayasa perangkat lunak.",
+      "prospekKerja": "Software Engineer, System Architect, Tech Lead",
+      "createdAt": "2026-05-26T02:00:00.000Z",
+      "ptn": {
+        "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+        "nama": "Institut Teknologi Bandung",
+        "singkatan": "ITB",
+        "kota": "Bandung"
+      }
+    }
+  ]
+}
+```
+
+---
+
+#### GET /api/v1/ptn/jurusan/:id
+
+**Deskripsi:** Mengambil detail satu jurusan beserta data PTN-nya.
+**Auth required:** Ya
+**Role required:** `ADMIN` atau `SISWA`
+
+**Request Headers:**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi       |
+|-----------|--------|-------|-----------------|
+| `id`      | string | Ya    | UUID dari jurusan|
+
+**Success Response** `200 OK`:
+```json
+{
+  "data": {
+    "id": "c3d4e5f6-a7b8-9012-cdef-012345678901",
+    "ptnId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "nama": "Ilmu Komputer",
+    "kode": "UI-IK",
+    "fakultas": "Fakultas Ilmu Komputer",
+    "jenjang": "S1",
+    "kelompok": "SAINTEK",
+    "dayaTampung": 120,
+    "passingGrade": 750.5,
+    "deskripsi": "Program studi yang mempelajari ilmu komputer dan pemrograman.",
+    "prospekKerja": "Software Engineer, Data Scientist, AI Engineer",
+    "createdAt": "2026-05-26T02:00:00.000Z",
+    "ptn": {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "nama": "Universitas Indonesia",
+      "singkatan": "UI",
+      "kota": "Depok",
+      "provinsi": "Jawa Barat",
+      "akreditasi": "Unggul",
+      "tipe": "Universitas",
+      "website": "https://www.ui.ac.id",
+      "logoUrl": null,
+      "deskripsi": "Universitas terkemuka di Indonesia yang berlokasi di Depok, Jawa Barat.",
+      "createdAt": "2026-05-26T02:00:00.000Z"
+    }
+  }
+}
+```
+
+**Error Responses:**
+
+`404 Not Found` — jurusan tidak ditemukan:
+```json
+{
+  "message": "Jurusan tidak ditemukan"
+}
+```
+
+---
+
+#### POST /api/v1/ptn/jurusan
+
+**Deskripsi:** Membuat data jurusan baru di bawah PTN tertentu.
+**Auth required:** Ya
+**Role required:** `ADMIN`
+
+**Request Headers:**
+```
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
+```
+
+**Request Body:**
+
+| Field          | Tipe   | Wajib | Validasi                                          |
+|----------------|--------|-------|---------------------------------------------------|
+| `ptnId`        | string | Ya    | UUID PTN yang valid dan terdaftar di database     |
+| `nama`         | string | Ya    | Tidak boleh kosong                                |
+| `kode`         | string | Ya    | Tidak boleh kosong, contoh: `UI-IK`               |
+| `fakultas`     | string | Ya    | Tidak boleh kosong                                |
+| `jenjang`      | string | Ya    | `S1`, `D3`, atau `D4`                             |
+| `kelompok`     | string | Ya    | `SAINTEK`, `SOSHUM`, atau `CAMPURAN`              |
+| `dayaTampung`  | number | Tidak | Integer positif                                   |
+| `passingGrade` | number | Tidak | Nilai float, contoh: `750.5`                      |
+| `deskripsi`    | string | Tidak | Deskripsi program studi                           |
+| `prospekKerja` | string | Tidak | Deskripsi prospek karier                          |
+
+```json
+{
+  "ptnId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "nama": "Sistem Informasi",
+  "kode": "UI-SI",
+  "fakultas": "Fakultas Ilmu Komputer",
+  "jenjang": "S1",
+  "kelompok": "SAINTEK",
+  "dayaTampung": 90,
+  "passingGrade": 735.0,
+  "deskripsi": "Program studi yang memadukan teknologi informasi dengan manajemen bisnis.",
+  "prospekKerja": "System Analyst, IT Consultant, Business Intelligence Analyst"
+}
+```
+
+**Success Response** `201 Created`:
+```json
+{
+  "data": {
+    "id": "f6a7b8c9-d0e1-2345-6789-0abcdef01234",
+    "ptnId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "nama": "Sistem Informasi",
+    "kode": "UI-SI",
+    "fakultas": "Fakultas Ilmu Komputer",
+    "jenjang": "S1",
+    "kelompok": "SAINTEK",
+    "dayaTampung": 90,
+    "passingGrade": 735.0,
+    "deskripsi": "Program studi yang memadukan teknologi informasi dengan manajemen bisnis.",
+    "prospekKerja": "System Analyst, IT Consultant, Business Intelligence Analyst",
+    "createdAt": "2026-05-26T03:30:00.000Z"
+  }
+}
+```
+
+**Error Responses:**
+
+`400 Bad Request` — field wajib tidak diisi:
+```json
+{
+  "message": "Field ptnId, nama, kode, fakultas, jenjang, dan kelompok wajib diisi"
+}
+```
+
+`400 Bad Request` — jenjang tidak valid:
+```json
+{
+  "message": "Jenjang tidak valid"
+}
+```
+
+`400 Bad Request` — kelompok tidak valid:
+```json
+{
+  "message": "Kelompok tidak valid"
+}
+```
+
+`403 Forbidden` — role pengakses bukan ADMIN:
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: ADMIN"
+}
+```
+
+`404 Not Found` — PTN dengan ptnId tidak ditemukan:
+```json
+{
+  "message": "PTN tidak ditemukan"
+}
+```
+
+---
+
+#### PUT /api/v1/ptn/jurusan/:id
+
+**Deskripsi:** Mengupdate data jurusan. Hanya field yang dikirim yang akan diupdate (partial update).
+**Auth required:** Ya
+**Role required:** `ADMIN`
+
+**Request Headers:**
+```
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi        |
+|-----------|--------|-------|------------------|
+| `id`      | string | Ya    | UUID dari jurusan|
+
+**Request Body (semua field opsional):**
+```json
+{
+  "dayaTampung": 100,
+  "passingGrade": 740.0,
+  "prospekKerja": "System Analyst, IT Manager, CTO"
+}
+```
+
+**Success Response** `200 OK`:
+```json
+{
+  "data": {
+    "id": "f6a7b8c9-d0e1-2345-6789-0abcdef01234",
+    "ptnId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "nama": "Sistem Informasi",
+    "kode": "UI-SI",
+    "fakultas": "Fakultas Ilmu Komputer",
+    "jenjang": "S1",
+    "kelompok": "SAINTEK",
+    "dayaTampung": 100,
+    "passingGrade": 740.0,
+    "deskripsi": "Program studi yang memadukan teknologi informasi dengan manajemen bisnis.",
+    "prospekKerja": "System Analyst, IT Manager, CTO",
+    "createdAt": "2026-05-26T03:30:00.000Z"
+  }
+}
+```
+
+**Error Responses:**
+
+`400 Bad Request` — jenjang atau kelompok tidak valid:
+```json
+{
+  "message": "Jenjang tidak valid"
+}
+```
+
+`403 Forbidden` — role pengakses bukan ADMIN:
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: ADMIN"
+}
+```
+
+`404 Not Found` — jurusan tidak ditemukan:
+```json
+{
+  "message": "Jurusan tidak ditemukan"
+}
+```
+
+---
+
+#### DELETE /api/v1/ptn/jurusan/:id
+
+**Deskripsi:** Menghapus satu jurusan secara permanen.
+**Auth required:** Ya
+**Role required:** `ADMIN`
+
+**Request Headers:**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi        |
+|-----------|--------|-------|------------------|
+| `id`      | string | Ya    | UUID dari jurusan|
+
+**Success Response** `200 OK`:
+```json
+{
+  "message": "Jurusan berhasil dihapus"
+}
+```
+
+**Error Responses:**
+
+`403 Forbidden` — role pengakses bukan ADMIN:
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: ADMIN"
+}
+```
+
+`404 Not Found` — jurusan tidak ditemukan:
+```json
+{
+  "message": "Jurusan tidak ditemukan"
+}
+```
+
+---
+
+### PTN & Jurusan
+
+> Semua endpoint PTN dan Jurusan membutuhkan autentikasi (`Authorization: Bearer <token>`). Endpoint mutasi (POST, PUT, DELETE) hanya bisa diakses oleh user dengan role `ADMIN`.
+
+#### GET /api/v1/ptn
+
+**Deskripsi:** Mengambil daftar semua PTN. Mendukung filter dan pencarian.
+**Auth required:** Ya
+**Role required:** `ADMIN` atau `SISWA`
+
+**Request Headers:**
+
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Query Parameters:**
+
+| Parameter    | Tipe   | Wajib | Nilai yang diterima                                               |
+| ------------ | ------ | ----- | ----------------------------------------------------------------- |
+| `provinsi`   | string | Tidak | Nama provinsi, contoh: `Jawa Barat`                               |
+| `tipe`       | string | Tidak | `Universitas`, `Institut`, `Politeknik`, `Sekolah Tinggi`         |
+| `akreditasi` | string | Tidak | `Unggul`, `Baik Sekali`, `Baik`, `A`, `B`, `C`                    |
+| `search`     | string | Tidak | Pencarian parsial (case-insensitive) pada `nama` atau `singkatan` |
+
+**Contoh Request:**
+
+```
+GET /api/v1/ptn?provinsi=Jawa Barat&tipe=Universitas
+GET /api/v1/ptn?search=UI
+```
+
+**Success Response** `200 OK`:
+
+```json
+{
+  "data": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "nama": "Universitas Indonesia",
+      "singkatan": "UI",
+      "kota": "Depok",
+      "provinsi": "Jawa Barat",
+      "akreditasi": "Unggul",
+      "tipe": "Universitas",
+      "website": "https://www.ui.ac.id",
+      "logoUrl": null,
+      "deskripsi": "Universitas terkemuka di Indonesia yang berlokasi di Depok, Jawa Barat.",
+      "createdAt": "2026-05-26T02:00:00.000Z",
+      "_count": {
+        "jurusans": 12
+      }
+    },
+    {
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "nama": "Universitas Gadjah Mada",
+      "singkatan": "UGM",
+      "kota": "Yogyakarta",
+      "provinsi": "Daerah Istimewa Yogyakarta",
+      "akreditasi": "Unggul",
+      "tipe": "Universitas",
+      "website": "https://www.ugm.ac.id",
+      "logoUrl": null,
+      "deskripsi": "Universitas negeri tertua di Indonesia yang berlokasi di Yogyakarta.",
+      "createdAt": "2026-05-26T02:00:00.000Z",
+      "_count": {
+        "jurusans": 18
+      }
+    }
+  ]
+}
+```
+
+---
+
+#### GET /api/v1/ptn/:id
+
+**Deskripsi:** Mengambil detail satu PTN beserta seluruh daftar jurusannya.
+**Auth required:** Ya
+**Role required:** `ADMIN` atau `SISWA`
+
+**Request Headers:**
+
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi     |
+| --------- | ------ | ----- | ------------- |
+| `id`      | string | Ya    | UUID dari PTN |
+
+**Success Response** `200 OK`:
+
+```json
+{
+  "data": {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "nama": "Universitas Indonesia",
+    "singkatan": "UI",
+    "kota": "Depok",
+    "provinsi": "Jawa Barat",
+    "akreditasi": "Unggul",
+    "tipe": "Universitas",
+    "website": "https://www.ui.ac.id",
+    "logoUrl": null,
+    "deskripsi": "Universitas terkemuka di Indonesia yang berlokasi di Depok, Jawa Barat.",
+    "createdAt": "2026-05-26T02:00:00.000Z",
+    "jurusans": [
+      {
+        "id": "c3d4e5f6-a7b8-9012-cdef-012345678901",
+        "ptnId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "nama": "Ilmu Komputer",
+        "kode": "UI-IK",
+        "fakultas": "Fakultas Ilmu Komputer",
+        "jenjang": "S1",
+        "kelompok": "SAINTEK",
+        "dayaTampung": 120,
+        "passingGrade": 750.5,
+        "deskripsi": "Program studi yang mempelajari ilmu komputer dan pemrograman.",
+        "prospekKerja": "Software Engineer, Data Scientist, AI Engineer",
+        "createdAt": "2026-05-26T02:00:00.000Z"
+      }
+    ]
+  }
+}
+```
+
+**Error Responses:**
+
+`404 Not Found` — PTN tidak ditemukan:
+
+```json
+{
+  "message": "PTN tidak ditemukan"
+}
+```
+
+---
+
+#### POST /api/v1/ptn
+
+**Deskripsi:** Membuat data PTN baru.
+**Auth required:** Ya
+**Role required:** `ADMIN`
+
+**Request Headers:**
+
+```
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
+```
+
+**Request Body:**
+
+| Field        | Tipe   | Wajib | Validasi                                                       |
+| ------------ | ------ | ----- | -------------------------------------------------------------- |
+| `nama`       | string | Ya    | Tidak boleh kosong                                             |
+| `singkatan`  | string | Ya    | Tidak boleh kosong                                             |
+| `kota`       | string | Ya    | Tidak boleh kosong                                             |
+| `provinsi`   | string | Ya    | Tidak boleh kosong                                             |
+| `akreditasi` | string | Ya    | `Unggul`, `Baik Sekali`, `Baik`, `A`, `B`, atau `C`           |
+| `tipe`       | string | Ya    | `Universitas`, `Institut`, `Politeknik`, atau `Sekolah Tinggi` |
+| `website`    | string | Tidak | URL website PTN                                                |
+| `logoUrl`    | string | Tidak | URL logo PTN                                                   |
+| `deskripsi`  | string | Tidak | Deskripsi singkat PTN                                          |
+
+```json
+{
+  "nama": "Institut Teknologi Bandung",
+  "singkatan": "ITB",
+  "kota": "Bandung",
+  "provinsi": "Jawa Barat",
+  "akreditasi": "Unggul",
+  "tipe": "Institut",
+  "website": "https://www.itb.ac.id",
+  "deskripsi": "Institut teknologi terbaik di Indonesia yang terletak di Bandung."
+}
+```
+
+**Success Response** `201 Created`:
+
+```json
+{
+  "data": {
+    "id": "d4e5f6a7-b8c9-0123-4567-890abcdef012",
+    "nama": "Institut Teknologi Bandung",
+    "singkatan": "ITB",
+    "kota": "Bandung",
+    "provinsi": "Jawa Barat",
+    "akreditasi": "Unggul",
+    "tipe": "Institut",
+    "website": "https://www.itb.ac.id",
+    "logoUrl": null,
+    "deskripsi": "Institut teknologi terbaik di Indonesia yang terletak di Bandung.",
+    "createdAt": "2026-05-26T03:00:00.000Z"
+  }
+}
+```
+
+**Error Responses:**
+
+`400 Bad Request` — field wajib tidak diisi:
+
+```json
+{
+  "message": "Field nama, singkatan, kota, provinsi, akreditasi, dan tipe wajib diisi"
+}
+```
+
+`400 Bad Request` — tipe tidak valid:
+
+```json
+{
+  "message": "Tipe PTN tidak valid"
+}
+```
+
+`400 Bad Request` — akreditasi tidak valid:
+
+```json
+{
+  "message": "Akreditasi PTN tidak valid"
+}
+```
+
+`403 Forbidden` — role pengakses bukan ADMIN:
+
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: ADMIN"
+}
+```
+
+---
+
+#### PUT /api/v1/ptn/:id
+
+**Deskripsi:** Mengupdate data PTN. Hanya field yang dikirim yang akan diupdate (partial update).
+**Auth required:** Ya
+**Role required:** `ADMIN`
+
+**Request Headers:**
+
+```
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi     |
+| --------- | ------ | ----- | ------------- |
+| `id`      | string | Ya    | UUID dari PTN |
+
+**Request Body (semua field opsional):**
+
+```json
+{
+  "kota": "Bandung Barat",
+  "akreditasi": "Unggul",
+  "website": "https://www.itb.ac.id"
+}
+```
+
+**Success Response** `200 OK`:
+
+```json
+{
+  "data": {
+    "id": "d4e5f6a7-b8c9-0123-4567-890abcdef012",
+    "nama": "Institut Teknologi Bandung",
+    "singkatan": "ITB",
+    "kota": "Bandung Barat",
+    "provinsi": "Jawa Barat",
+    "akreditasi": "Unggul",
+    "tipe": "Institut",
+    "website": "https://www.itb.ac.id",
+    "logoUrl": null,
+    "deskripsi": "Institut teknologi terbaik di Indonesia yang terletak di Bandung.",
+    "createdAt": "2026-05-26T03:00:00.000Z"
+  }
+}
+```
+
+**Error Responses:**
+
+`400 Bad Request` — tipe atau akreditasi tidak valid:
+
+```json
+{
+  "message": "Tipe PTN tidak valid"
+}
+```
+
+`403 Forbidden` — role pengakses bukan ADMIN:
+
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: ADMIN"
+}
+```
+
+`404 Not Found` — PTN tidak ditemukan:
+
+```json
+{
+  "message": "PTN tidak ditemukan"
+}
+```
+
+---
+
+#### DELETE /api/v1/ptn/:id
+
+**Deskripsi:** Menghapus PTN beserta **seluruh jurusan** yang dimilikinya secara permanen.
+**Auth required:** Ya
+**Role required:** `ADMIN`
+
+**Request Headers:**
+
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi     |
+| --------- | ------ | ----- | ------------- |
+| `id`      | string | Ya    | UUID dari PTN |
+
+**Success Response** `200 OK`:
+
+```json
+{
+  "message": "PTN dan semua jurusan berhasil dihapus"
+}
+```
+
+**Error Responses:**
+
+`403 Forbidden` — role pengakses bukan ADMIN:
+
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: ADMIN"
+}
+```
+
+`404 Not Found` — PTN tidak ditemukan:
+
+```json
+{
+  "message": "PTN tidak ditemukan"
+}
+```
+
+---
+
+#### GET /api/v1/ptn/:ptnId/jurusan
+
+**Deskripsi:** Mengambil daftar seluruh jurusan milik satu PTN. Mendukung filter opsional.
+**Auth required:** Ya
+**Role required:** `ADMIN` atau `SISWA`
+
+**Request Headers:**
+
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi     |
+| --------- | ------ | ----- | ------------- |
+| `ptnId`   | string | Ya    | UUID dari PTN |
+
+**Query Parameters:**
+
+| Parameter  | Tipe   | Wajib | Nilai yang diterima                           |
+| ---------- | ------ | ----- | --------------------------------------------- |
+| `kelompok` | string | Tidak | `SAINTEK`, `SOSHUM`, `CAMPURAN`               |
+| `jenjang`  | string | Tidak | `S1`, `D3`, `D4`                              |
+| `search`   | string | Tidak | Pencarian parsial pada `nama` atau `fakultas` |
+
+**Contoh Request:**
+
+```
+GET /api/v1/ptn/a1b2c3d4-e5f6-7890-abcd-ef1234567890/jurusan?kelompok=SAINTEK
+```
+
+**Success Response** `200 OK`:
+
+```json
+{
+  "data": [
+    {
+      "id": "c3d4e5f6-a7b8-9012-cdef-012345678901",
+      "ptnId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "nama": "Ilmu Komputer",
+      "kode": "UI-IK",
+      "fakultas": "Fakultas Ilmu Komputer",
+      "jenjang": "S1",
+      "kelompok": "SAINTEK",
+      "dayaTampung": 120,
+      "passingGrade": 750.5,
+      "deskripsi": "Program studi yang mempelajari ilmu komputer dan pemrograman.",
+      "prospekKerja": "Software Engineer, Data Scientist, AI Engineer",
+      "createdAt": "2026-05-26T02:00:00.000Z"
+    }
+  ]
+}
+```
+
+**Error Responses:**
+
+`404 Not Found` — PTN tidak ditemukan:
+
+```json
+{
+  "message": "PTN tidak ditemukan"
+}
+```
+
+---
+
+#### GET /api/v1/ptn/jurusan
+
+**Deskripsi:** Mengambil daftar seluruh jurusan dari semua PTN, beserta informasi PTN masing-masing. Mendukung filter dan pencarian.
+**Auth required:** Ya
+**Role required:** `ADMIN` atau `SISWA`
+
+**Request Headers:**
+
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Query Parameters:**
+
+| Parameter  | Tipe   | Wajib | Nilai yang diterima                           |
+| ---------- | ------ | ----- | --------------------------------------------- |
+| `kelompok` | string | Tidak | `SAINTEK`, `SOSHUM`, `CAMPURAN`               |
+| `jenjang`  | string | Tidak | `S1`, `D3`, `D4`                              |
+| `search`   | string | Tidak | Pencarian parsial pada `nama` atau `fakultas` |
+
+**Contoh Request:**
+
+```
+GET /api/v1/ptn/jurusan?kelompok=SAINTEK&jenjang=S1
+GET /api/v1/ptn/jurusan?search=Teknik Informatika
+```
+
+**Success Response** `200 OK`:
+
+```json
+{
+  "data": [
+    {
+      "id": "c3d4e5f6-a7b8-9012-cdef-012345678901",
+      "ptnId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "nama": "Ilmu Komputer",
+      "kode": "UI-IK",
+      "fakultas": "Fakultas Ilmu Komputer",
+      "jenjang": "S1",
+      "kelompok": "SAINTEK",
+      "dayaTampung": 120,
+      "passingGrade": 750.5,
+      "deskripsi": "Program studi yang mempelajari ilmu komputer dan pemrograman.",
+      "prospekKerja": "Software Engineer, Data Scientist, AI Engineer",
+      "createdAt": "2026-05-26T02:00:00.000Z",
+      "ptn": {
+        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "nama": "Universitas Indonesia",
+        "singkatan": "UI",
+        "kota": "Depok"
+      }
+    },
+    {
+      "id": "e5f6a7b8-c9d0-1234-5678-90abcdef0123",
+      "ptnId": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "nama": "Teknik Informatika",
+      "kode": "ITB-IF",
+      "fakultas": "Sekolah Teknik Elektro dan Informatika",
+      "jenjang": "S1",
+      "kelompok": "SAINTEK",
+      "dayaTampung": 100,
+      "passingGrade": 780.0,
+      "deskripsi": "Program studi teknik informatika dengan fokus pada rekayasa perangkat lunak.",
+      "prospekKerja": "Software Engineer, System Architect, Tech Lead",
+      "createdAt": "2026-05-26T02:00:00.000Z",
+      "ptn": {
+        "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+        "nama": "Institut Teknologi Bandung",
+        "singkatan": "ITB",
+        "kota": "Bandung"
+      }
+    }
+  ]
+}
+```
+
+---
+
+#### GET /api/v1/ptn/jurusan/:id
+
+**Deskripsi:** Mengambil detail satu jurusan beserta data PTN-nya.
+**Auth required:** Ya
+**Role required:** `ADMIN` atau `SISWA`
+
+**Request Headers:**
+
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi         |
+| --------- | ------ | ----- | ----------------- |
+| `id`      | string | Ya    | UUID dari jurusan |
+
+**Success Response** `200 OK`:
+
+```json
+{
+  "data": {
+    "id": "c3d4e5f6-a7b8-9012-cdef-012345678901",
+    "ptnId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "nama": "Ilmu Komputer",
+    "kode": "UI-IK",
+    "fakultas": "Fakultas Ilmu Komputer",
+    "jenjang": "S1",
+    "kelompok": "SAINTEK",
+    "dayaTampung": 120,
+    "passingGrade": 750.5,
+    "deskripsi": "Program studi yang mempelajari ilmu komputer dan pemrograman.",
+    "prospekKerja": "Software Engineer, Data Scientist, AI Engineer",
+    "createdAt": "2026-05-26T02:00:00.000Z",
+    "ptn": {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "nama": "Universitas Indonesia",
+      "singkatan": "UI",
+      "kota": "Depok",
+      "provinsi": "Jawa Barat",
+      "akreditasi": "Unggul",
+      "tipe": "Universitas",
+      "website": "https://www.ui.ac.id",
+      "logoUrl": null,
+      "deskripsi": "Universitas terkemuka di Indonesia yang berlokasi di Depok, Jawa Barat.",
+      "createdAt": "2026-05-26T02:00:00.000Z"
+    }
+  }
+}
+```
+
+**Error Responses:**
+
+`404 Not Found` — jurusan tidak ditemukan:
+
+```json
+{
+  "message": "Jurusan tidak ditemukan"
+}
+```
+
+---
+
+#### POST /api/v1/ptn/jurusan
+
+**Deskripsi:** Membuat data jurusan baru di bawah PTN tertentu.
+**Auth required:** Ya
+**Role required:** `ADMIN`
+
+**Request Headers:**
+
+```
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
+```
+
+**Request Body:**
+
+| Field          | Tipe   | Wajib | Validasi                                      |
+| -------------- | ------ | ----- | --------------------------------------------- |
+| `ptnId`        | string | Ya    | UUID PTN yang valid dan terdaftar di database |
+| `nama`         | string | Ya    | Tidak boleh kosong                            |
+| `kode`         | string | Ya    | Tidak boleh kosong, contoh: `UI-IK`           |
+| `fakultas`     | string | Ya    | Tidak boleh kosong                            |
+| `jenjang`      | string | Ya    | `S1`, `D3`, atau `D4`                         |
+| `kelompok`     | string | Ya    | `SAINTEK`, `SOSHUM`, atau `CAMPURAN`          |
+| `dayaTampung`  | number | Tidak | Integer positif                               |
+| `passingGrade` | number | Tidak | Nilai float, contoh: `750.5`                  |
+| `deskripsi`    | string | Tidak | Deskripsi program studi                       |
+| `prospekKerja` | string | Tidak | Deskripsi prospek karier                      |
+
+```json
+{
+  "ptnId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "nama": "Sistem Informasi",
+  "kode": "UI-SI",
+  "fakultas": "Fakultas Ilmu Komputer",
+  "jenjang": "S1",
+  "kelompok": "SAINTEK",
+  "dayaTampung": 90,
+  "passingGrade": 735.0,
+  "deskripsi": "Program studi yang memadukan teknologi informasi dengan manajemen bisnis.",
+  "prospekKerja": "System Analyst, IT Consultant, Business Intelligence Analyst"
+}
+```
+
+**Success Response** `201 Created`:
+
+```json
+{
+  "data": {
+    "id": "f6a7b8c9-d0e1-2345-6789-0abcdef01234",
+    "ptnId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "nama": "Sistem Informasi",
+    "kode": "UI-SI",
+    "fakultas": "Fakultas Ilmu Komputer",
+    "jenjang": "S1",
+    "kelompok": "SAINTEK",
+    "dayaTampung": 90,
+    "passingGrade": 735.0,
+    "deskripsi": "Program studi yang memadukan teknologi informasi dengan manajemen bisnis.",
+    "prospekKerja": "System Analyst, IT Consultant, Business Intelligence Analyst",
+    "createdAt": "2026-05-26T03:30:00.000Z"
+  }
+}
+```
+
+**Error Responses:**
+
+`400 Bad Request` — field wajib tidak diisi:
+
+```json
+{
+  "message": "Field ptnId, nama, kode, fakultas, jenjang, dan kelompok wajib diisi"
+}
+```
+
+`400 Bad Request` — jenjang tidak valid:
+
+```json
+{
+  "message": "Jenjang tidak valid"
+}
+```
+
+`400 Bad Request` — kelompok tidak valid:
+
+```json
+{
+  "message": "Kelompok tidak valid"
+}
+```
+
+`403 Forbidden` — role pengakses bukan ADMIN:
+
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: ADMIN"
+}
+```
+
+`404 Not Found` — PTN dengan ptnId tidak ditemukan:
+
+```json
+{
+  "message": "PTN tidak ditemukan"
+}
+```
+
+---
+
+#### PUT /api/v1/ptn/jurusan/:id
+
+**Deskripsi:** Mengupdate data jurusan. Hanya field yang dikirim yang akan diupdate (partial update).
+**Auth required:** Ya
+**Role required:** `ADMIN`
+
+**Request Headers:**
+
+```
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi         |
+| --------- | ------ | ----- | ----------------- |
+| `id`      | string | Ya    | UUID dari jurusan |
+
+**Request Body (semua field opsional):**
+
+```json
+{
+  "dayaTampung": 100,
+  "passingGrade": 740.0,
+  "prospekKerja": "System Analyst, IT Manager, CTO"
+}
+```
+
+**Success Response** `200 OK`:
+
+```json
+{
+  "data": {
+    "id": "f6a7b8c9-d0e1-2345-6789-0abcdef01234",
+    "ptnId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "nama": "Sistem Informasi",
+    "kode": "UI-SI",
+    "fakultas": "Fakultas Ilmu Komputer",
+    "jenjang": "S1",
+    "kelompok": "SAINTEK",
+    "dayaTampung": 100,
+    "passingGrade": 740.0,
+    "deskripsi": "Program studi yang memadukan teknologi informasi dengan manajemen bisnis.",
+    "prospekKerja": "System Analyst, IT Manager, CTO",
+    "createdAt": "2026-05-26T03:30:00.000Z"
+  }
+}
+```
+
+**Error Responses:**
+
+`400 Bad Request` — jenjang atau kelompok tidak valid:
+
+```json
+{
+  "message": "Jenjang tidak valid"
+}
+```
+
+`403 Forbidden` — role pengakses bukan ADMIN:
+
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: ADMIN"
+}
+```
+
+`404 Not Found` — jurusan tidak ditemukan:
+
+```json
+{
+  "message": "Jurusan tidak ditemukan"
+}
+```
+
+---
+
+#### DELETE /api/v1/ptn/jurusan/:id
+
+**Deskripsi:** Menghapus satu jurusan secara permanen.
+**Auth required:** Ya
+**Role required:** `ADMIN`
+
+**Request Headers:**
+
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi         |
+| --------- | ------ | ----- | ----------------- |
+| `id`      | string | Ya    | UUID dari jurusan |
+
+**Success Response** `200 OK`:
+
+```json
+{
+  "message": "Jurusan berhasil dihapus"
+}
+```
+
+**Error Responses:**
+
+`403 Forbidden` — role pengakses bukan ADMIN:
+
+```json
+{
+  "message": "Akses ditolak. Diperlukan role: ADMIN"
+}
+```
+
+`404 Not Found` — jurusan tidak ditemukan:
+
+```json
+{
+  "message": "Jurusan tidak ditemukan"
+}
+```
+
+---
+
 ## Error Codes
 
 | Status Code | Deskripsi                                                        |
