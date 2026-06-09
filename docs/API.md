@@ -5,6 +5,7 @@
 ```
 development: http://localhost:3000/api/v1
 production: https://utbk-backend-production.up.railway.app/api/v1
+alternatif: https://syarip0227-utbk-pro.hf.space/api/v1/
 ```
 
 ## Authentication
