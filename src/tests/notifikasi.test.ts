@@ -63,16 +63,14 @@ beforeAll(async () => {
         judul: 'Test Notif 3',
         pesan: 'Pesan notifikasi ketiga sudah dibaca',
         tipe: 'tryout_started',
-        isRead: true,
-        data: null
+        isRead: true
       },
       {
         userId: 'test-notif-siswa2-uuid',
         judul: 'Test Notif 4',
         pesan: 'Notifikasi user lain',
         tipe: 'tryout_result',
-        isRead: false,
-        data: null
+        isRead: false
       }
     ]
   })
