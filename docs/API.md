@@ -3606,6 +3606,391 @@ GET /api/v1/rekomendasi?kelompok=SAINTEK&limit=5
 
 ---
 
+### Notifikasi
+
+#### GET /api/v1/notifikasi
+
+**Deskripsi:** Mengambil daftar semua notifikasi milik user yang sedang login, diurutkan dari yang belum dibaca dan terbaru.  
+**Auth required:** Ya  
+**Role required:** Semua yang terautentikasi
+
+**Request Headers:**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Success Response** `200 OK`:
+```json
+{
+  "data": {
+    "total": 10,
+    "unreadCount": 2,
+    "notifikasi": [
+      {
+        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "userId": "cbb75c0d-ac8b-4939-9f24-b69379271c68",
+        "judul": "Tryout Baru Tersedia",
+        "pesan": "Tryout Akbar 2026 sudah bisa dikerjakan.",
+        "tipe": "INFO",
+        "data": null,
+        "isRead": false,
+        "createdAt": "2026-06-11T05:00:00.000Z",
+        "updatedAt": "2026-06-11T05:00:00.000Z"
+      }
+    ]
+  }
+}
+```
+
+**Error Responses:**
+
+`401 Unauthorized` — tidak ada token atau token tidak valid:
+```json
+{
+  "error": "Unauthorized"
+}
+```
+
+`500 Internal Server Error` — kesalahan internal server:
+```json
+{
+  "error": "Internal server error"
+}
+```
+
+---
+
+#### GET /api/v1/notifikasi/unread-count
+
+**Deskripsi:** Mengambil jumlah notifikasi yang belum dibaca oleh user yang sedang login.  
+**Auth required:** Ya  
+**Role required:** Semua yang terautentikasi
+
+**Request Headers:**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Success Response** `200 OK`:
+```json
+{
+  "data": {
+    "unreadCount": 2
+  }
+}
+```
+
+---
+
+#### PATCH /api/v1/notifikasi/read-all
+
+**Deskripsi:** Menandai semua notifikasi milik user yang sedang login sebagai telah dibaca.  
+**Auth required:** Ya  
+**Role required:** Semua yang terautentikasi
+
+**Request Headers:**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Success Response** `200 OK`:
+```json
+{
+  "data": {
+    "updatedCount": 2,
+    "message": "2 notifikasi telah ditandai sebagai dibaca"
+  }
+}
+```
+
+---
+
+#### PATCH /api/v1/notifikasi/:id/read
+
+**Deskripsi:** Menandai spesifik notifikasi berdasarkan ID sebagai telah dibaca.  
+**Auth required:** Ya  
+**Role required:** Semua yang terautentikasi
+
+**Request Headers:**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi             |
+|-----------|--------|-------|-----------------------|
+| `id`      | string | Ya    | UUID notifikasi       |
+
+**Success Response** `200 OK`:
+```json
+{
+  "data": {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "isRead": true
+  }
+}
+```
+
+**Error Responses:**
+
+`403 Forbidden` — notifikasi milik user lain:
+```json
+{
+  "error": "Tidak memiliki akses"
+}
+```
+
+`404 Not Found` — notifikasi tidak ditemukan:
+```json
+{
+  "error": "Notifikasi tidak ditemukan"
+}
+```
+
+---
+
+#### DELETE /api/v1/notifikasi/:id
+
+**Deskripsi:** Menghapus spesifik notifikasi berdasarkan ID.  
+**Auth required:** Ya  
+**Role required:** Semua yang terautentikasi
+
+**Request Headers:**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**URL Parameters:**
+
+| Parameter | Tipe   | Wajib | Deskripsi             |
+|-----------|--------|-------|-----------------------|
+| `id`      | string | Ya    | UUID notifikasi       |
+
+**Success Response** `200 OK`:
+```json
+{
+  "message": "Notifikasi berhasil dihapus"
+}
+```
+
+**Error Responses:**
+
+`403 Forbidden` — notifikasi milik user lain:
+```json
+{
+  "error": "Tidak memiliki akses"
+}
+```
+
+`404 Not Found` — notifikasi tidak ditemukan:
+```json
+{
+  "error": "Notifikasi tidak ditemukan"
+}
+```
+
+---
+
+### AI
+
+#### GET /api/v1/ai/analisis
+
+**Deskripsi:** Menganalisis performa dan kelemahan siswa berdasarkan riwayat jawaban dari latihan dan tryout menggunakan AI Gemini.  
+**Auth required:** Ya  
+**Role required:** `SISWA`
+
+**Request Headers:**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Success Response** `200 OK`:
+```json
+{
+  "success": true,
+  "data": {
+    "statistik": [
+      {
+        "mapel": "TPS",
+        "total": 50,
+        "benar": 30,
+        "salah": 20,
+        "akurasi": 60,
+        "perTingkat": {
+          "mudah": { "total": 20, "benar": 15 },
+          "sedang": { "total": 20, "benar": 10 },
+          "sulit": { "total": 10, "benar": 5 }
+        }
+      }
+    ],
+    "totalSoal": 50,
+    "akurasiKeseluruhan": 60,
+    "analisis": {
+      "ringkasan": "Performa secara umum cukup baik, namun masih kurang di materi TKA.",
+      "topikLemah": ["TKA_SAINTEK"],
+      "analisisPerMapel": [
+        {
+          "mapel": "TPS",
+          "status": "cukup",
+          "catatan": "Pemahaman TPS sudah lumayan.",
+          "saranBelajar": "Perbanyak latihan soal penalaran analitik."
+        }
+      ],
+      "prioritasBelajar": "Fokus pada TKA Saintek minggu ini.",
+      "estimasiSkor": {
+        "TPS": 600,
+        "TKA": 450,
+        "catatan": "Skor ini estimasi kasar dari akurasi."
+      }
+    }
+  }
+}
+```
+
+**Error Responses:**
+
+`404 Not Found` — belum ada data jawaban latihan atau tryout:
+```json
+{
+  "success": false,
+  "message": "Belum ada data jawaban. Kerjakan latihan atau tryout terlebih dahulu."
+}
+```
+
+`503 Service Unavailable` — gagal memproses AI:
+```json
+{
+  "success": false,
+  "message": "Gagal menganalisis data. Coba lagi nanti."
+}
+```
+
+---
+
+#### GET /api/v1/ai/rekomendasi-ptn
+
+**Deskripsi:** Merekomendasikan jurusan dan PTN berdasarkan skor tryout terakhir dan kelompok dominan (SAINTEK/SOSHUM) menggunakan AI Gemini.  
+**Auth required:** Ya  
+**Role required:** `SISWA`
+
+**Request Headers:**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Success Response** `200 OK`:
+```json
+{
+  "success": true,
+  "data": {
+    "kelompok": "SAINTEK",
+    "skorEstimasi": 650,
+    "rekomendasi": {
+      "rekomendasi": [
+        {
+          "jurusanNama": "Sistem Informasi",
+          "ptnNama": "Universitas Brawijaya",
+          "ptnSingkatan": "UB",
+          "passingGrade": 640,
+          "kategori": "target",
+          "alasan": "Skor tryout kamu sangat dekat dengan passing grade.",
+          "peluang": "tinggi"
+        }
+      ],
+      "saranUmum": "Fokus pertahankan nilai TPS agar tetap unggul."
+    }
+  }
+}
+```
+
+**Error Responses:**
+
+`404 Not Found` — belum ada data tryout:
+```json
+{
+  "success": false,
+  "message": "Belum ada data tryout. Ikuti tryout terlebih dahulu untuk mendapat rekomendasi PTN."
+}
+```
+
+`404 Not Found` — tidak ada jurusan yang sesuai passing grade:
+```json
+{
+  "success": false,
+  "message": "Tidak ditemukan jurusan yang sesuai dengan profil skor kamu."
+}
+```
+
+`503 Service Unavailable` — gagal memproses AI:
+```json
+{
+  "success": false,
+  "message": "Gagal membuat rekomendasi. Coba lagi nanti."
+}
+```
+
+---
+
+#### POST /api/v1/ai/chat
+
+**Deskripsi:** Chat interaktif (tanya jawab) dengan AI tutor bernama Tuto. Mendukung pengiriman riwayat percakapan untuk konteks.  
+**Auth required:** Ya  
+**Role required:** `SISWA`
+
+**Request Headers:**
+```
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Request Body:**
+```json
+{
+  "pesan": "Jelaskan cara menghitung integral substitusi",
+  "riwayat": [
+    { "role": "user", "content": "Halo Tuto, saya kesulitan materi Matematika" },
+    { "role": "model", "content": "Halo! Jangan khawatir, materi apa yang sulit?" }
+  ]
+}
+```
+
+| Field     | Tipe  | Wajib | Deskripsi                                        |
+|-----------|-------|-------|--------------------------------------------------|
+| `pesan`   | string| Ya    | Isi pesan user (maks 1000 karakter).             |
+| `riwayat` | array | Tidak | Array objek percakapan sebelumnya (`role` & `content`). Maks 20 pesan. |
+
+**Success Response** `200 OK`:
+```json
+{
+  "success": true,
+  "data": {
+    "balasan": "Integral substitusi digunakan ketika ...",
+    "role": "model"
+  }
+}
+```
+
+**Error Responses:**
+
+`400 Bad Request` — validasi pesan gagal:
+```json
+{
+  "success": false,
+  "message": "Pesan tidak boleh kosong"
+}
+```
+
+`503 Service Unavailable` — gagal memproses AI:
+```json
+{
+  "success": false,
+  "message": "Tuto sedang tidak tersedia. Coba lagi nanti."
+}
+```
+
+---
+
 ## Error Codes
 
 | Status Code | Deskripsi                                                        |

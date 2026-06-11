@@ -9,6 +9,7 @@ import dashboardRoutes from "../modules/dashboard/dashboard.routes";
 import rekomendasiRoutes from "../modules/rekomendasi/rekomendasi.routes";
 import forumRoutes from "../modules/forum/forum.routes";
 import notifikasiRoutes from "../modules/notifikasi/notifikasi.routes";
+import aiRoutes from "../modules/ai/ai.routes";
 
 const router = Router();
 
@@ -22,5 +23,6 @@ router.use("/dashboard", dashboardRoutes);
 router.use("/rekomendasi", rekomendasiRoutes);
 router.use("/forum", forumRoutes);
 router.use("/notifikasi", notifikasiRoutes);
+router.use("/ai", aiRoutes);
 
 export default router;
