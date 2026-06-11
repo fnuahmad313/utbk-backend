@@ -1,5 +1,6 @@
 import { TipeSoal, StatusTryout, StatusSesiTryout } from '@prisma/client';
 import { prisma } from '../../config/prisma';
+import { createNotifikasi, createNotifikasiBulk } from '../notifikasi/notifikasi.service';
 
 export interface CreateTryoutInput {
   judul: string;
@@ -170,6 +171,23 @@ export const updateStatus = async (id: string, newStatus: string) => {
     data: { status: newStatus as StatusTryout },
     include: { subtes: true },
   });
+
+  if (newStatus === 'ONGOING') {
+    const semuaSiswa = await prisma.user.findMany({
+      where: { role: 'SISWA' },
+      select: { id: true }
+    });
+
+    await createNotifikasiBulk(
+      semuaSiswa.map(siswa => ({
+        userId: siswa.id,
+        judul: 'Tryout Dimulai',
+        pesan: `Tryout "${updated.judul}" sudah dimulai. Segera kerjakan sebelum waktu habis!`,
+        tipe: 'tryout_started',
+        data: { tryoutId: id }
+      }))
+    );
+  }
 
   return { data: updated };
 };
@@ -686,6 +704,14 @@ export const selesaiTryout = async (
       },
     }),
   ]);
+
+  await createNotifikasi({
+    userId,
+    judul: 'Hasil Tryout Tersedia',
+    pesan: `Hasil tryout kamu sudah bisa dilihat. Skor total: ${skorTotal}`,
+    tipe: 'tryout_result',
+    data: { sesiId, tryoutId: sesi.tryoutId }
+  });
 
   return {
     data: {

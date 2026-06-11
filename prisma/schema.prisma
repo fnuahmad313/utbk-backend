@@ -21,6 +21,7 @@ model User {
   forumKomentar      ForumKomentar[]
   forumPostLikes     ForumPostLike[]
   forumKomentarLikes ForumKomentarLike[]
+  notifikasis        Notifikasi[]
 }
 
 model Soal {
@@ -120,36 +121,36 @@ model JawabanTryout {
 }
 
 model PTN {
-  id          String    @id @default(uuid())
-  nama        String
-  singkatan   String
-  kota        String
-  provinsi    String
-  akreditasi  String    // "A" | "B" | "Unggul" | "Baik Sekali" | "Baik"
-  tipe        String    // "Universitas" | "Institut" | "Politeknik" | "Sekolah Tinggi"
-  website     String?
-  logoUrl     String?
-  deskripsi   String?
-  createdAt   DateTime  @default(now())
+  id         String   @id @default(uuid())
+  nama       String
+  singkatan  String
+  kota       String
+  provinsi   String
+  akreditasi String // "A" | "B" | "Unggul" | "Baik Sekali" | "Baik"
+  tipe       String // "Universitas" | "Institut" | "Politeknik" | "Sekolah Tinggi"
+  website    String?
+  logoUrl    String?
+  deskripsi  String?
+  createdAt  DateTime @default(now())
 
-  jurusans    Jurusan[]
+  jurusans Jurusan[]
 }
 
 model Jurusan {
-  id             String   @id @default(uuid())
-  ptnId          String
-  nama           String
-  kode           String
-  fakultas       String
-  jenjang        String   // "S1" | "D3" | "D4"
-  kelompok       String   // "SAINTEK" | "SOSHUM" | "CAMPURAN"
-  dayaTampung    Int?
-  passingGrade   Float?
-  deskripsi      String?
-  prospekKerja   String?
-  createdAt      DateTime @default(now())
+  id           String   @id @default(uuid())
+  ptnId        String
+  nama         String
+  kode         String
+  fakultas     String
+  jenjang      String // "S1" | "D3" | "D4"
+  kelompok     String // "SAINTEK" | "SOSHUM" | "CAMPURAN"
+  dayaTampung  Int?
+  passingGrade Float?
+  deskripsi    String?
+  prospekKerja String?
+  createdAt    DateTime @default(now())
 
-  ptn            PTN @relation(fields: [ptnId], references: [id])
+  ptn PTN @relation(fields: [ptnId], references: [id])
 }
 
 enum Role {
@@ -178,49 +179,49 @@ enum StatusSesiTryout {
 }
 
 model KategoriForumPost {
-  id          String   @id @default(uuid())
-  nama        String   @unique
-  slug        String   @unique  // url-friendly, contoh: "diskusi-soal"
-  deskripsi   String?
-  createdAt   DateTime @default(now())
+  id        String   @id @default(uuid())
+  nama      String   @unique
+  slug      String   @unique // url-friendly, contoh: "diskusi-soal"
+  deskripsi String?
+  createdAt DateTime @default(now())
 
-  posts       ForumPost[]
+  posts ForumPost[]
 }
 
 model ForumPost {
-  id          String   @id @default(uuid())
-  userId      String
-  kategoriId  String
-  judul       String
-  konten      String
-  likeCount   Int      @default(0)
-  viewCount   Int      @default(0)
-  isPinned    Boolean  @default(false)  // admin bisa pin post
-  isLocked    Boolean  @default(false)  // admin bisa lock post (tidak bisa dikomentari)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(uuid())
+  userId     String
+  kategoriId String
+  judul      String
+  konten     String
+  likeCount  Int      @default(0)
+  viewCount  Int      @default(0)
+  isPinned   Boolean  @default(false) // admin bisa pin post
+  isLocked   Boolean  @default(false) // admin bisa lock post (tidak bisa dikomentari)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  user        User              @relation(fields: [userId], references: [id])
-  kategori    KategoriForumPost @relation(fields: [kategoriId], references: [id])
-  komentar    ForumKomentar[]
-  likes       ForumPostLike[]
+  user     User              @relation(fields: [userId], references: [id])
+  kategori KategoriForumPost @relation(fields: [kategoriId], references: [id])
+  komentar ForumKomentar[]
+  likes    ForumPostLike[]
 }
 
 model ForumKomentar {
-  id          String   @id @default(uuid())
-  postId      String
-  userId      String
-  parentId    String?  // null = komentar level 1, diisi = reply (level 2)
-  konten      String
-  likeCount   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(uuid())
+  postId    String
+  userId    String
+  parentId  String? // null = komentar level 1, diisi = reply (level 2)
+  konten    String
+  likeCount Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  post        ForumPost       @relation(fields: [postId], references: [id])
-  user        User            @relation(fields: [userId], references: [id])
-  parent      ForumKomentar?  @relation("KomentarReplies", fields: [parentId], references: [id])
-  replies     ForumKomentar[] @relation("KomentarReplies")
-  likes       ForumKomentarLike[]
+  post    ForumPost           @relation(fields: [postId], references: [id])
+  user    User                @relation(fields: [userId], references: [id])
+  parent  ForumKomentar?      @relation("KomentarReplies", fields: [parentId], references: [id])
+  replies ForumKomentar[]     @relation("KomentarReplies")
+  likes   ForumKomentarLike[]
 }
 
 model ForumPostLike {
@@ -229,21 +230,33 @@ model ForumPostLike {
   userId    String
   createdAt DateTime @default(now())
 
-  post      ForumPost @relation(fields: [postId], references: [id])
-  user      User      @relation(fields: [userId], references: [id])
+  post ForumPost @relation(fields: [postId], references: [id])
+  user User      @relation(fields: [userId], references: [id])
 
-  @@unique([postId, userId])  // satu user hanya bisa like satu kali per post
+  @@unique([postId, userId]) // satu user hanya bisa like satu kali per post
 }
 
 model ForumKomentarLike {
-  id          String   @id @default(uuid())
-  komentarId  String
-  userId      String
-  createdAt   DateTime @default(now())
+  id         String   @id @default(uuid())
+  komentarId String
+  userId     String
+  createdAt  DateTime @default(now())
 
-  komentar    ForumKomentar @relation(fields: [komentarId], references: [id])
-  user        User          @relation(fields: [userId], references: [id])
+  komentar ForumKomentar @relation(fields: [komentarId], references: [id])
+  user     User          @relation(fields: [userId], references: [id])
 
-  @@unique([komentarId, userId])  // satu user hanya bisa like satu kali per komentar
+  @@unique([komentarId, userId]) // satu user hanya bisa like satu kali per komentar
 }
 
+model Notifikasi {
+  id        String   @id @default(uuid())
+  userId    String
+  judul     String
+  pesan     String
+  tipe      String // "tryout_result" | "forum_reply" | "tryout_reminder"
+  isRead    Boolean  @default(false)
+  data      Json? // metadata tambahan misal tryoutId, postId, dll
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}

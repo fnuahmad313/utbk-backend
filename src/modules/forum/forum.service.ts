@@ -1,4 +1,5 @@
 import { prisma } from '../../config/prisma'
+import { createNotifikasi } from '../notifikasi/notifikasi.service'
 
 const generateSlug = (nama: string): string => {
   return nama
@@ -601,6 +602,29 @@ export const createKomentar = async (
       }
     }
   })
+
+  if (data.parentId) {
+    const parentKomentar = await prisma.forumKomentar.findUnique({
+      where: { id: data.parentId },
+      include: { user: { select: { name: true } } }
+    })
+
+    // Jangan notif kalau reply ke komentar sendiri
+    if (parentKomentar && parentKomentar.userId !== userId) {
+      const replierUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { name: true }
+      })
+
+      await createNotifikasi({
+        userId: parentKomentar.userId,
+        judul: 'Ada yang Membalas Komentarmu',
+        pesan: `${replierUser?.name} membalas komentarmu di "${post.judul}"`,
+        tipe: 'forum_reply',
+        data: { postId, komentarId: data.parentId }
+      })
+    }
+  }
 
   return { data: komentar }
 }
