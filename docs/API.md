@@ -5,7 +5,7 @@
 ```
 development: http://localhost:3000/api/v1
 production: https://utbk-backend-production.up.railway.app/api/v1
-alternatif: https://syarip0227-utbk-pro.hf.space/api/v1/
+alternatif: https://syarip0227-utbk1-3-0.hf.space/api/v1
 ```
 
 ## Authentication
@@ -33,11 +33,13 @@ Token didapatkan dari response endpoint `POST /api/v1/auth/login`.
 **Role required:** Tidak ada (Semua)
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "email": "siswa@utbk.dev",
@@ -47,6 +49,7 @@ Content-Type: application/json
 ```
 
 **Success Response** `201 Created`:
+
 ```json
 {
   "message": "Registrasi berhasil, cek email untuk verifikasi",
@@ -60,6 +63,7 @@ Content-Type: application/json
 **Error Responses:**
 
 `400 Bad Request` — email sudah terdaftar:
+
 ```json
 {
   "message": "User already registered"
@@ -75,11 +79,13 @@ Content-Type: application/json
 **Role required:** Tidak ada (Semua)
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "email": "siswa@utbk.dev",
@@ -88,6 +94,7 @@ Content-Type: application/json
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "message": "Login berhasil",
@@ -103,6 +110,7 @@ Content-Type: application/json
 **Error Responses:**
 
 `400 Bad Request` — kredensial salah:
+
 ```json
 {
   "message": "Invalid login credentials"
@@ -118,11 +126,13 @@ Content-Type: application/json
 **Role required:** `ADMIN` atau `SISWA`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "message": "Logout berhasil"
@@ -132,6 +142,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `401 Unauthorized` — token tidak ditemukan:
+
 ```json
 {
   "message": "Token tidak ditemukan"
@@ -139,6 +150,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `401 Unauthorized` — token tidak valid atau expired:
+
 ```json
 {
   "message": "Token tidak valid atau sudah expired"
@@ -154,11 +166,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Role required:** `ADMIN` atau `SISWA`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -174,6 +188,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `401 Unauthorized` — token tidak valid atau expired:
+
 ```json
 {
   "message": "Token tidak valid atau sudah expired"
@@ -181,6 +196,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `404 Not Found` — user tidak ditemukan di database:
+
 ```json
 {
   "message": "User tidak ditemukan"
@@ -196,12 +212,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Role required:** `ADMIN`
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 **Request Body:**
+
 ```json
 {
   "userId": "cbb75c0d-ac8b-4939-9f24-b69379271c68",
@@ -210,6 +228,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "message": "Role berhasil diubah",
@@ -225,12 +244,15 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 **Error Responses:**
 
 `400 Bad Request` — parameter body tidak lengkap atau tidak valid:
+
 ```json
 {
   "message": "userId dan role wajib diisi"
 }
 ```
+
 Atau:
+
 ```json
 {
   "message": "Role tidak valid. Gunakan ADMIN atau SISWA"
@@ -238,6 +260,7 @@ Atau:
 ```
 
 `401 Unauthorized` — token tidak valid, tidak ditemukan, atau expired:
+
 ```json
 {
   "message": "Token tidak valid atau sudah expired"
@@ -245,6 +268,7 @@ Atau:
 ```
 
 `403 Forbidden` — role pengakses bukan ADMIN:
+
 ```json
 {
   "message": "Akses ditolak. Diperlukan role: ADMIN"
@@ -252,6 +276,7 @@ Atau:
 ```
 
 `404 Not Found` — user target tidak ditemukan di database:
+
 ```json
 {
   "message": "User tidak ditemukan di database"
@@ -271,23 +296,26 @@ Atau:
 **Role required:** `ADMIN` atau `SISWA`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Query Parameters:**
 
-| Parameter | Tipe   | Wajib | Nilai yang diterima                    |
-|-----------|--------|-------|----------------------------------------|
-| `mapel`   | string | Tidak | `TPS`, `TKA_SAINTEK`, `TKA_SOSHUM`    |
-| `tingkat` | string | Tidak | `mudah`, `sedang`, `sulit`             |
+| Parameter | Tipe   | Wajib | Nilai yang diterima                |
+| --------- | ------ | ----- | ---------------------------------- |
+| `mapel`   | string | Tidak | `TPS`, `TKA_SAINTEK`, `TKA_SOSHUM` |
+| `tingkat` | string | Tidak | `mudah`, `sedang`, `sulit`         |
 
 **Contoh Request:**
+
 ```
 GET /api/v1/soal?mapel=TPS&tingkat=mudah
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": [
@@ -313,6 +341,7 @@ GET /api/v1/soal?mapel=TPS&tingkat=mudah
 **Error Responses:**
 
 `400 Bad Request` — mapel tidak valid:
+
 ```json
 {
   "message": "Mapel tidak valid"
@@ -320,6 +349,7 @@ GET /api/v1/soal?mapel=TPS&tingkat=mudah
 ```
 
 `400 Bad Request` — tingkat tidak valid:
+
 ```json
 {
   "message": "Tingkat tidak valid"
@@ -335,17 +365,19 @@ GET /api/v1/soal?mapel=TPS&tingkat=mudah
 **Role required:** `ADMIN` atau `SISWA`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi       |
-|-----------|--------|-------|-----------------|
-| `id`      | string | Ya    | UUID soal       |
+| Parameter | Tipe   | Wajib | Deskripsi |
+| --------- | ------ | ----- | --------- |
+| `id`      | string | Ya    | UUID soal |
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -369,6 +401,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `404 Not Found` — soal tidak ditemukan:
+
 ```json
 {
   "message": "Soal tidak ditemukan"
@@ -384,12 +417,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Role required:** `ADMIN`
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 **Request Body:**
+
 ```json
 {
   "pertanyaan": "Jika semua kucing adalah hewan, dan semua hewan bernapas, maka...",
@@ -408,6 +443,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 **Success Response** `201 Created`:
+
 ```json
 {
   "message": "Berhasil dibuat",
@@ -432,6 +468,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 **Error Responses:**
 
 `400 Bad Request` — pertanyaan kosong:
+
 ```json
 {
   "message": "Pertanyaan harus diisi dan berupa string"
@@ -439,6 +476,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 `400 Bad Request` — opsi tidak lengkap:
+
 ```json
 {
   "message": "Opsi A harus diisi dan berupa string"
@@ -446,6 +484,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 `400 Bad Request` — jawaban tidak valid:
+
 ```json
 {
   "message": "Jawaban tidak valid, harus A, B, C, D, atau E"
@@ -453,6 +492,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 `400 Bad Request` — mapel tidak valid:
+
 ```json
 {
   "message": "Mapel tidak valid, harus TPS, TKA_SAINTEK, atau TKA_SOSHUM"
@@ -460,6 +500,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 `400 Bad Request` — tingkat tidak valid:
+
 ```json
 {
   "message": "Tingkat tidak valid, harus mudah, sedang, atau sulit"
@@ -467,6 +508,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 `403 Forbidden` — role pengakses bukan ADMIN:
+
 ```json
 {
   "message": "Akses ditolak. Diperlukan role: ADMIN"
@@ -482,6 +524,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 **Role required:** `ADMIN`
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
@@ -489,11 +532,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi       |
-|-----------|--------|-------|-----------------|
-| `id`      | string | Ya    | UUID soal       |
+| Parameter | Tipe   | Wajib | Deskripsi |
+| --------- | ------ | ----- | --------- |
+| `id`      | string | Ya    | UUID soal |
 
 **Request Body (semua field opsional):**
+
 ```json
 {
   "pertanyaan": "Pertanyaan yang sudah diupdate?",
@@ -502,6 +546,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -525,6 +570,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 **Error Responses:**
 
 `400 Bad Request` — tingkat tidak valid:
+
 ```json
 {
   "message": "Tingkat tidak valid"
@@ -532,6 +578,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 `403 Forbidden` — role pengakses bukan ADMIN:
+
 ```json
 {
   "message": "Akses ditolak. Diperlukan role: ADMIN"
@@ -539,6 +586,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 `404 Not Found` — soal tidak ditemukan:
+
 ```json
 {
   "message": "Soal tidak ditemukan"
@@ -554,17 +602,19 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 **Role required:** `ADMIN`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi       |
-|-----------|--------|-------|-----------------|
-| `id`      | string | Ya    | UUID soal       |
+| Parameter | Tipe   | Wajib | Deskripsi |
+| --------- | ------ | ----- | --------- |
+| `id`      | string | Ya    | UUID soal |
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -588,6 +638,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 **Error Responses:**
 
 `403 Forbidden` — role pengakses bukan ADMIN:
+
 ```json
 {
   "message": "Akses ditolak. Diperlukan role: ADMIN"
@@ -595,6 +646,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 `404 Not Found` — soal tidak ditemukan:
+
 ```json
 {
   "message": "Soal tidak ditemukan"
@@ -612,12 +664,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 **Role required:** `SISWA`
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Request Body:**
+
 ```json
 {
   "mapel": "TPS",
@@ -625,12 +679,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 }
 ```
 
-| Field    | Tipe   | Wajib | Validasi                                     |
-|----------|--------|-------|----------------------------------------------|
-| `mapel`  | string | Ya    | `TPS`, `TKA_SAINTEK`, `TKA_SOSHUM`           |
-| `jumlah` | number | Ya    | Integer, minimum 1, maksimum 40              |
+| Field    | Tipe   | Wajib | Validasi                           |
+| -------- | ------ | ----- | ---------------------------------- |
+| `mapel`  | string | Ya    | `TPS`, `TKA_SAINTEK`, `TKA_SOSHUM` |
+| `jumlah` | number | Ya    | Integer, minimum 1, maksimum 40    |
 
 **Success Response** `201 Created`:
+
 ```json
 {
   "data": {
@@ -662,6 +717,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `400 Bad Request` — mapel tidak valid:
+
 ```json
 {
   "message": "Mapel tidak valid, harus TPS, TKA_SAINTEK, atau TKA_SOSHUM"
@@ -669,6 +725,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `400 Bad Request` — jumlah di luar range:
+
 ```json
 {
   "message": "Jumlah soal tidak valid, harus antara 1 dan 40"
@@ -676,6 +733,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `400 Bad Request` — tidak ada soal tersedia:
+
 ```json
 {
   "message": "Tidak ada soal tersedia untuk mata pelajaran ini"
@@ -683,6 +741,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `403 Forbidden` — role pengakses bukan SISWA:
+
 ```json
 {
   "message": "Akses ditolak. Diperlukan role: SISWA"
@@ -698,6 +757,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Role required:** `SISWA`
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
@@ -705,11 +765,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 **URL Parameters:**
 
-| Parameter   | Tipe   | Wajib | Deskripsi              |
-|-------------|--------|-------|------------------------|
-| `sessionId` | string | Ya    | UUID sesi latihan      |
+| Parameter   | Tipe   | Wajib | Deskripsi         |
+| ----------- | ------ | ----- | ----------------- |
+| `sessionId` | string | Ya    | UUID sesi latihan |
 
 **Request Body:**
+
 ```json
 {
   "jawabans": [
@@ -719,13 +780,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 }
 ```
 
-| Field             | Tipe   | Wajib | Validasi                  |
-|-------------------|--------|-------|---------------------------|
-| `jawabans`        | array  | Ya    | Array of object           |
-| `jawabans[].soalId` | string | Ya  | UUID soal yang valid      |
-| `jawabans[].jawaban` | string | Ya | `A`, `B`, `C`, `D`, `E`  |
+| Field                | Tipe   | Wajib | Validasi                |
+| -------------------- | ------ | ----- | ----------------------- |
+| `jawabans`           | array  | Ya    | Array of object         |
+| `jawabans[].soalId`  | string | Ya    | UUID soal yang valid    |
+| `jawabans[].jawaban` | string | Ya    | `A`, `B`, `C`, `D`, `E` |
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -740,6 +802,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `400 Bad Request` — session sudah selesai:
+
 ```json
 {
   "message": "Sesi latihan sudah selesai"
@@ -747,6 +810,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `400 Bad Request` — jawaban kosong atau format tidak valid:
+
 ```json
 {
   "message": "Jawaban tidak boleh kosong"
@@ -754,6 +818,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `403 Forbidden` — session milik user lain ATAU role pengakses bukan SISWA:
+
 ```json
 {
   "message": "Anda tidak memiliki akses ke sesi ini"
@@ -761,6 +826,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `404 Not Found` — session tidak ditemukan:
+
 ```json
 {
   "message": "Sesi latihan tidak ditemukan"
@@ -776,11 +842,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Role required:** `SISWA`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": [
@@ -807,6 +875,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `403 Forbidden` — role pengakses bukan SISWA:
+
 ```json
 {
   "message": "Akses ditolak. Diperlukan role: SISWA"
@@ -822,17 +891,19 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Role required:** `SISWA`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **URL Parameters:**
 
-| Parameter   | Tipe   | Wajib | Deskripsi              |
-|-------------|--------|-------|------------------------|
-| `sessionId` | string | Ya    | UUID sesi latihan      |
+| Parameter   | Tipe   | Wajib | Deskripsi         |
+| ----------- | ------ | ----- | ----------------- |
+| `sessionId` | string | Ya    | UUID sesi latihan |
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -892,6 +963,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `403 Forbidden` — session milik user lain ATAU role pengakses bukan SISWA:
+
 ```json
 {
   "message": "Anda tidak memiliki akses ke sesi ini"
@@ -899,6 +971,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `404 Not Found` — session tidak ditemukan:
+
 ```json
 {
   "message": "Sesi latihan tidak ditemukan"
@@ -916,6 +989,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Role required:** Tidak ada (Semua)
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": [
@@ -968,16 +1042,18 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Nilai yang diterima               |
-|-----------|--------|-------|-----------------------------------|
-| `slug`    | string | Ya    | `snbt`, `mandiri`, `prestasi`     |
+| Parameter | Tipe   | Wajib | Nilai yang diterima           |
+| --------- | ------ | ----- | ----------------------------- |
+| `slug`    | string | Ya    | `snbt`, `mandiri`, `prestasi` |
 
 **Contoh Request:**
+
 ```
 GET /api/v1/info/jalur/snbt
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -1005,6 +1081,7 @@ GET /api/v1/info/jalur/snbt
 **Error Responses:**
 
 `404 Not Found` — slug tidak ditemukan:
+
 ```json
 {
   "message": "Jalur masuk tidak ditemukan"
@@ -1022,12 +1099,14 @@ GET /api/v1/info/jalur/snbt
 **Role required:** `ADMIN`
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 Authorization: Bearer <admin_access_token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "judul": "Tryout UTBK Batch 1 2026",
@@ -1040,6 +1119,7 @@ Authorization: Bearer <admin_access_token>
 ```
 
 **Success Response** `201 Created`:
+
 ```json
 {
   "message": "Tryout berhasil dibuat",
@@ -1076,6 +1156,7 @@ Authorization: Bearer <admin_access_token>
 **Error Responses:**
 
 `400 Bad Request` — judul kosong:
+
 ```json
 {
   "message": "Judul wajib diisi dan tidak boleh kosong"
@@ -1083,6 +1164,7 @@ Authorization: Bearer <admin_access_token>
 ```
 
 `400 Bad Request` — selesaiAt sebelum mulaiAt:
+
 ```json
 {
   "message": "Waktu selesai harus setelah waktu mulai"
@@ -1090,6 +1172,7 @@ Authorization: Bearer <admin_access_token>
 ```
 
 `400 Bad Request` — durasi tidak valid:
+
 ```json
 {
   "message": "Durasi TPS dan TKA wajib berupa integer lebih besar dari 0"
@@ -1097,6 +1180,7 @@ Authorization: Bearer <admin_access_token>
 ```
 
 `403 Forbidden` — bukan admin:
+
 ```json
 {
   "message": "Akses ditolak. Diperlukan role: ADMIN"
@@ -1112,6 +1196,7 @@ Authorization: Bearer <admin_access_token>
 **Role required:** `ADMIN`
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 Authorization: Bearer <admin_access_token>
@@ -1119,11 +1204,12 @@ Authorization: Bearer <admin_access_token>
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi       |
-|-----------|--------|-------|-----------------|
-| `id`      | string | Ya    | UUID tryout     |
+| Parameter | Tipe   | Wajib | Deskripsi   |
+| --------- | ------ | ----- | ----------- |
+| `id`      | string | Ya    | UUID tryout |
 
 **Request Body:**
+
 ```json
 {
   "status": "PUBLISHED"
@@ -1131,6 +1217,7 @@ Authorization: Bearer <admin_access_token>
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -1144,6 +1231,7 @@ Authorization: Bearer <admin_access_token>
 **Error Responses:**
 
 `400 Bad Request` — transisi tidak valid:
+
 ```json
 {
   "message": "Transisi status tidak valid"
@@ -1151,6 +1239,7 @@ Authorization: Bearer <admin_access_token>
 ```
 
 `400 Bad Request` — subtes TPS belum punya soal:
+
 ```json
 {
   "message": "Subtes TPS belum memiliki soal"
@@ -1158,6 +1247,7 @@ Authorization: Bearer <admin_access_token>
 ```
 
 `400 Bad Request` — subtes TKA belum punya soal:
+
 ```json
 {
   "message": "Subtes TKA belum memiliki soal"
@@ -1165,6 +1255,7 @@ Authorization: Bearer <admin_access_token>
 ```
 
 `404 Not Found` — tryout tidak ditemukan:
+
 ```json
 {
   "message": "Tryout tidak ditemukan"
@@ -1180,6 +1271,7 @@ Authorization: Bearer <admin_access_token>
 **Role required:** `ADMIN`
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 Authorization: Bearer <admin_access_token>
@@ -1187,11 +1279,12 @@ Authorization: Bearer <admin_access_token>
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi       |
-|-----------|--------|-------|-----------------|
-| `id`      | string | Ya    | UUID tryout     |
+| Parameter | Tipe   | Wajib | Deskripsi   |
+| --------- | ------ | ----- | ----------- |
+| `id`      | string | Ya    | UUID tryout |
 
 **Request Body:**
+
 ```json
 {
   "mapel": "TPS",
@@ -1203,6 +1296,7 @@ Authorization: Bearer <admin_access_token>
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "message": "Soal berhasil ditambahkan ke subtes"
@@ -1212,6 +1306,7 @@ Authorization: Bearer <admin_access_token>
 **Error Responses:**
 
 `400 Bad Request` — mapel tidak valid:
+
 ```json
 {
   "message": "Mapel tidak valid"
@@ -1219,6 +1314,7 @@ Authorization: Bearer <admin_access_token>
 ```
 
 `400 Bad Request` — soalIds kosong:
+
 ```json
 {
   "message": "soalIds wajib diisi dan tidak boleh kosong"
@@ -1226,6 +1322,7 @@ Authorization: Bearer <admin_access_token>
 ```
 
 `400 Bad Request` — tryout bukan DRAFT:
+
 ```json
 {
   "message": "Soal hanya bisa ditambahkan pada tryout berstatus DRAFT"
@@ -1233,6 +1330,7 @@ Authorization: Bearer <admin_access_token>
 ```
 
 `400 Bad Request` — soal ID tidak ditemukan:
+
 ```json
 {
   "message": "Beberapa Soal ID tidak valid atau tidak ditemukan"
@@ -1240,6 +1338,7 @@ Authorization: Bearer <admin_access_token>
 ```
 
 `404 Not Found` — tryout tidak ditemukan:
+
 ```json
 {
   "message": "Tryout tidak ditemukan"
@@ -1255,17 +1354,19 @@ Authorization: Bearer <admin_access_token>
 **Role required:** `ADMIN`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer <admin_access_token>
 ```
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi       |
-|-----------|--------|-------|-----------------|
-| `id`      | string | Ya    | UUID tryout     |
+| Parameter | Tipe   | Wajib | Deskripsi   |
+| --------- | ------ | ----- | ----------- |
+| `id`      | string | Ya    | UUID tryout |
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "message": "Tryout berhasil dihapus"
@@ -1275,6 +1376,7 @@ Authorization: Bearer <admin_access_token>
 **Error Responses:**
 
 `400 Bad Request` — bukan DRAFT:
+
 ```json
 {
   "message": "Hanya tryout berstatus DRAFT yang bisa dihapus"
@@ -1282,6 +1384,7 @@ Authorization: Bearer <admin_access_token>
 ```
 
 `404 Not Found` — tidak ditemukan:
+
 ```json
 {
   "message": "Tryout tidak ditemukan"
@@ -1297,11 +1400,13 @@ Authorization: Bearer <admin_access_token>
 **Role required:** `SISWA`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer <siswa_access_token>
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": [
@@ -1325,6 +1430,7 @@ Authorization: Bearer <siswa_access_token>
 **Error Responses:**
 
 `401 Unauthorized` — token tidak valid atau expired:
+
 ```json
 {
   "message": "Token tidak valid atau sudah expired"
@@ -1332,6 +1438,7 @@ Authorization: Bearer <siswa_access_token>
 ```
 
 `403 Forbidden` — role pengakses bukan SISWA:
+
 ```json
 {
   "message": "Akses ditolak. Diperlukan role: SISWA"
@@ -1347,17 +1454,19 @@ Authorization: Bearer <siswa_access_token>
 **Role required:** `SISWA`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer <siswa_access_token>
 ```
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi       |
-|-----------|--------|-------|-----------------|
-| `id`      | string | Ya    | UUID tryout     |
+| Parameter | Tipe   | Wajib | Deskripsi   |
+| --------- | ------ | ----- | ----------- |
+| `id`      | string | Ya    | UUID tryout |
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -1389,6 +1498,7 @@ Authorization: Bearer <siswa_access_token>
 **Error Responses:**
 
 `404 Not Found` — tidak ditemukan:
+
 ```json
 {
   "message": "Tryout tidak ditemukan"
@@ -1396,6 +1506,7 @@ Authorization: Bearer <siswa_access_token>
 ```
 
 `400 Bad Request` — tryout belum dalam status ONGOING:
+
 ```json
 {
   "message": "Tryout belum dalam status ONGOING"
@@ -1411,17 +1522,19 @@ Authorization: Bearer <siswa_access_token>
 **Role required:** `SISWA`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer <siswa_access_token>
 ```
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi       |
-|-----------|--------|-------|-----------------|
-| `id`      | string | Ya    | UUID tryout     |
+| Parameter | Tipe   | Wajib | Deskripsi   |
+| --------- | ------ | ----- | ----------- |
+| `id`      | string | Ya    | UUID tryout |
 
 **Success Response** `201 Created`:
+
 ```json
 {
   "message": "Sesi tryout dimulai",
@@ -1457,6 +1570,7 @@ Authorization: Bearer <siswa_access_token>
 **Error Responses:**
 
 `400 Bad Request` — tryout belum ONGOING:
+
 ```json
 {
   "message": "Tryout belum berlangsung atau sudah selesai"
@@ -1464,6 +1578,7 @@ Authorization: Bearer <siswa_access_token>
 ```
 
 `400 Bad Request` — waktu sudah habis:
+
 ```json
 {
   "message": "Waktu pelaksanaan tryout telah berakhir"
@@ -1471,6 +1586,7 @@ Authorization: Bearer <siswa_access_token>
 ```
 
 `400 Bad Request` — sudah punya sesi aktif:
+
 ```json
 {
   "message": "Anda sudah memiliki sesi aktif untuk tryout ini"
@@ -1478,6 +1594,7 @@ Authorization: Bearer <siswa_access_token>
 ```
 
 `404 Not Found` — tryout tidak ditemukan:
+
 ```json
 {
   "message": "Tryout tidak ditemukan"
@@ -1493,6 +1610,7 @@ Authorization: Bearer <siswa_access_token>
 **Role required:** `SISWA`
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 Authorization: Bearer <siswa_access_token>
@@ -1500,22 +1618,27 @@ Authorization: Bearer <siswa_access_token>
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi       |
-|-----------|--------|-------|-----------------|
-| `sesiId`  | string | Ya    | UUID sesi tryout|
+| Parameter | Tipe   | Wajib | Deskripsi        |
+| --------- | ------ | ----- | ---------------- |
+| `sesiId`  | string | Ya    | UUID sesi tryout |
 
 **Request Body:**
+
 ```json
 {
   "jawabans": [
     { "soalId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890", "jawaban": "A" },
     { "soalId": "b2c3d4e5-f6a7-8901-bcde-f12345678901", "jawaban": ["A", "C"] },
-    { "soalId": "c3d4e5f6-a7b8-9012-3456-7890abcdef01", "jawaban": { "0": true, "1": false } }
+    {
+      "soalId": "c3d4e5f6-a7b8-9012-3456-7890abcdef01",
+      "jawaban": { "0": true, "1": false }
+    }
   ]
 }
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "message": "Subtes TPS selesai, lanjut ke TKA",
@@ -1544,6 +1667,7 @@ Authorization: Bearer <siswa_access_token>
 **Error Responses:**
 
 `400 Bad Request` — sesi tidak aktif:
+
 ```json
 {
   "message": "Sesi tryout tidak aktif atau sudah selesai"
@@ -1551,6 +1675,7 @@ Authorization: Bearer <siswa_access_token>
 ```
 
 `403 Forbidden` — sesi bukan milik user:
+
 ```json
 {
   "message": "Akses ditolak"
@@ -1558,6 +1683,7 @@ Authorization: Bearer <siswa_access_token>
 ```
 
 `404 Not Found` — sesi tidak ditemukan:
+
 ```json
 {
   "message": "Sesi tryout tidak ditemukan"
@@ -1573,6 +1699,7 @@ Authorization: Bearer <siswa_access_token>
 **Role required:** `SISWA`
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 Authorization: Bearer <siswa_access_token>
@@ -1580,11 +1707,12 @@ Authorization: Bearer <siswa_access_token>
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi       |
-|-----------|--------|-------|-----------------|
-| `sesiId`  | string | Ya    | UUID sesi tryout|
+| Parameter | Tipe   | Wajib | Deskripsi        |
+| --------- | ------ | ----- | ---------------- |
+| `sesiId`  | string | Ya    | UUID sesi tryout |
 
 **Request Body:**
+
 ```json
 {
   "jawabans": [
@@ -1594,6 +1722,7 @@ Authorization: Bearer <siswa_access_token>
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "message": "Tryout selesai",
@@ -1610,6 +1739,7 @@ Authorization: Bearer <siswa_access_token>
 **Error Responses:**
 
 `400 Bad Request` — sesi sudah disubmit sebelumnya:
+
 ```json
 {
   "message": "Sesi tryout tidak aktif atau sudah disubmit sebelumnya"
@@ -1617,6 +1747,7 @@ Authorization: Bearer <siswa_access_token>
 ```
 
 `403 Forbidden` — sesi bukan milik user:
+
 ```json
 {
   "message": "Akses ditolak"
@@ -1624,6 +1755,7 @@ Authorization: Bearer <siswa_access_token>
 ```
 
 `404 Not Found` — sesi tidak ditemukan:
+
 ```json
 {
   "message": "Sesi tryout tidak ditemukan"
@@ -1639,17 +1771,19 @@ Authorization: Bearer <siswa_access_token>
 **Role required:** `SISWA`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer <siswa_access_token>
 ```
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi       |
-|-----------|--------|-------|-----------------|
-| `sesiId`  | string | Ya    | UUID sesi tryout|
+| Parameter | Tipe   | Wajib | Deskripsi        |
+| --------- | ------ | ----- | ---------------- |
+| `sesiId`  | string | Ya    | UUID sesi tryout |
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -1687,6 +1821,7 @@ Authorization: Bearer <siswa_access_token>
 **Error Responses:**
 
 `400 Bad Request` — hasil belum bisa dilihat karena sesi masih berlangsung:
+
 ```json
 {
   "message": "Hasil tryout belum bisa dilihat karena sesi masih berlangsung"
@@ -1694,6 +1829,7 @@ Authorization: Bearer <siswa_access_token>
 ```
 
 `403 Forbidden` — sesi bukan milik user:
+
 ```json
 {
   "message": "Akses ditolak"
@@ -1701,6 +1837,7 @@ Authorization: Bearer <siswa_access_token>
 ```
 
 `404 Not Found` — sesi tidak ditemukan:
+
 ```json
 {
   "message": "Sesi tryout tidak ditemukan"
@@ -1716,11 +1853,13 @@ Authorization: Bearer <siswa_access_token>
 **Role required:** `SISWA`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer <siswa_access_token>
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": [
@@ -1744,6 +1883,7 @@ Authorization: Bearer <siswa_access_token>
 **Error Responses:**
 
 `401 Unauthorized` — token tidak valid atau expired:
+
 ```json
 {
   "message": "Token tidak valid atau sudah expired"
@@ -1751,6 +1891,7 @@ Authorization: Bearer <siswa_access_token>
 ```
 
 `403 Forbidden` — role pengakses bukan SISWA:
+
 ```json
 {
   "message": "Akses ditolak. Diperlukan role: SISWA"
@@ -1770,26 +1911,29 @@ Authorization: Bearer <siswa_access_token>
 **Role required:** `ADMIN` atau `SISWA`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Query Parameters:**
 
-| Parameter    | Tipe   | Wajib | Nilai yang diterima                                              |
-|--------------|--------|-------|------------------------------------------------------------------|
-| `provinsi`   | string | Tidak | Nama provinsi, contoh: `Jawa Barat`                              |
-| `tipe`       | string | Tidak | `Universitas`, `Institut`, `Politeknik`, `Sekolah Tinggi`        |
-| `akreditasi` | string | Tidak | `Unggul`, `Baik Sekali`, `Baik`, `A`, `B`, `C`                   |
-| `search`     | string | Tidak | Pencarian parsial (case-insensitive) pada `nama` atau `singkatan`|
+| Parameter    | Tipe   | Wajib | Nilai yang diterima                                               |
+| ------------ | ------ | ----- | ----------------------------------------------------------------- |
+| `provinsi`   | string | Tidak | Nama provinsi, contoh: `Jawa Barat`                               |
+| `tipe`       | string | Tidak | `Universitas`, `Institut`, `Politeknik`, `Sekolah Tinggi`         |
+| `akreditasi` | string | Tidak | `Unggul`, `Baik Sekali`, `Baik`, `A`, `B`, `C`                    |
+| `search`     | string | Tidak | Pencarian parsial (case-insensitive) pada `nama` atau `singkatan` |
 
 **Contoh Request:**
+
 ```
 GET /api/v1/ptn?provinsi=Jawa Barat&tipe=Universitas
 GET /api/v1/ptn?search=UI
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": [
@@ -1838,17 +1982,19 @@ GET /api/v1/ptn?search=UI
 **Role required:** `ADMIN` atau `SISWA`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi    |
-|-----------|--------|-------|--------------|
-| `id`      | string | Ya    | UUID dari PTN|
+| Parameter | Tipe   | Wajib | Deskripsi     |
+| --------- | ------ | ----- | ------------- |
+| `id`      | string | Ya    | UUID dari PTN |
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -1886,6 +2032,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `404 Not Found` — PTN tidak ditemukan:
+
 ```json
 {
   "message": "PTN tidak ditemukan"
@@ -1901,6 +2048,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Role required:** `ADMIN`
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
@@ -1908,17 +2056,17 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 
 **Request Body:**
 
-| Field        | Tipe   | Wajib | Validasi                                                          |
-|--------------|--------|-------|-------------------------------------------------------------------|
-| `nama`       | string | Ya    | Tidak boleh kosong                                                |
-| `singkatan`  | string | Ya    | Tidak boleh kosong                                                |
-| `kota`       | string | Ya    | Tidak boleh kosong                                                |
-| `provinsi`   | string | Ya    | Tidak boleh kosong                                                |
-| `akreditasi` | string | Ya    | `Unggul`, `Baik Sekali`, `Baik`, `A`, `B`, atau `C`              |
-| `tipe`       | string | Ya    | `Universitas`, `Institut`, `Politeknik`, atau `Sekolah Tinggi`    |
-| `website`    | string | Tidak | URL website PTN                                                   |
-| `logoUrl`    | string | Tidak | URL logo PTN                                                      |
-| `deskripsi`  | string | Tidak | Deskripsi singkat PTN                                             |
+| Field        | Tipe   | Wajib | Validasi                                                       |
+| ------------ | ------ | ----- | -------------------------------------------------------------- |
+| `nama`       | string | Ya    | Tidak boleh kosong                                             |
+| `singkatan`  | string | Ya    | Tidak boleh kosong                                             |
+| `kota`       | string | Ya    | Tidak boleh kosong                                             |
+| `provinsi`   | string | Ya    | Tidak boleh kosong                                             |
+| `akreditasi` | string | Ya    | `Unggul`, `Baik Sekali`, `Baik`, `A`, `B`, atau `C`            |
+| `tipe`       | string | Ya    | `Universitas`, `Institut`, `Politeknik`, atau `Sekolah Tinggi` |
+| `website`    | string | Tidak | URL website PTN                                                |
+| `logoUrl`    | string | Tidak | URL logo PTN                                                   |
+| `deskripsi`  | string | Tidak | Deskripsi singkat PTN                                          |
 
 ```json
 {
@@ -1934,6 +2082,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 **Success Response** `201 Created`:
+
 ```json
 {
   "data": {
@@ -1955,6 +2104,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 **Error Responses:**
 
 `400 Bad Request` — field wajib tidak diisi:
+
 ```json
 {
   "message": "Field nama, singkatan, kota, provinsi, akreditasi, dan tipe wajib diisi"
@@ -1962,6 +2112,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 `400 Bad Request` — tipe tidak valid:
+
 ```json
 {
   "message": "Tipe PTN tidak valid"
@@ -1969,6 +2120,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 `400 Bad Request` — akreditasi tidak valid:
+
 ```json
 {
   "message": "Akreditasi PTN tidak valid"
@@ -1976,6 +2128,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 `403 Forbidden` — role pengakses bukan ADMIN:
+
 ```json
 {
   "message": "Akses ditolak. Diperlukan role: ADMIN"
@@ -1991,6 +2144,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 **Role required:** `ADMIN`
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
@@ -1998,11 +2152,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi    |
-|-----------|--------|-------|--------------|
-| `id`      | string | Ya    | UUID dari PTN|
+| Parameter | Tipe   | Wajib | Deskripsi     |
+| --------- | ------ | ----- | ------------- |
+| `id`      | string | Ya    | UUID dari PTN |
 
 **Request Body (semua field opsional):**
+
 ```json
 {
   "kota": "Bandung Barat",
@@ -2012,6 +2167,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -2033,6 +2189,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 **Error Responses:**
 
 `400 Bad Request` — tipe atau akreditasi tidak valid:
+
 ```json
 {
   "message": "Tipe PTN tidak valid"
@@ -2040,6 +2197,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 `403 Forbidden` — role pengakses bukan ADMIN:
+
 ```json
 {
   "message": "Akses ditolak. Diperlukan role: ADMIN"
@@ -2047,6 +2205,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 `404 Not Found` — PTN tidak ditemukan:
+
 ```json
 {
   "message": "PTN tidak ditemukan"
@@ -2062,17 +2221,19 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 **Role required:** `ADMIN`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi    |
-|-----------|--------|-------|--------------|
-| `id`      | string | Ya    | UUID dari PTN|
+| Parameter | Tipe   | Wajib | Deskripsi     |
+| --------- | ------ | ----- | ------------- |
+| `id`      | string | Ya    | UUID dari PTN |
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "message": "PTN dan semua jurusan berhasil dihapus"
@@ -2082,6 +2243,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 **Error Responses:**
 
 `403 Forbidden` — role pengakses bukan ADMIN:
+
 ```json
 {
   "message": "Akses ditolak. Diperlukan role: ADMIN"
@@ -2089,6 +2251,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 `404 Not Found` — PTN tidak ditemukan:
+
 ```json
 {
   "message": "PTN tidak ditemukan"
@@ -2104,30 +2267,33 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 **Role required:** `ADMIN` atau `SISWA`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi    |
-|-----------|--------|-------|--------------|
-| `ptnId`   | string | Ya    | UUID dari PTN|
+| Parameter | Tipe   | Wajib | Deskripsi     |
+| --------- | ------ | ----- | ------------- |
+| `ptnId`   | string | Ya    | UUID dari PTN |
 
 **Query Parameters:**
 
-| Parameter  | Tipe   | Wajib | Nilai yang diterima                      |
-|------------|--------|-------|------------------------------------------|
-| `kelompok` | string | Tidak | `SAINTEK`, `SOSHUM`, `CAMPURAN`          |
-| `jenjang`  | string | Tidak | `S1`, `D3`, `D4`                         |
-| `search`   | string | Tidak | Pencarian parsial pada `nama` atau `fakultas`|
+| Parameter  | Tipe   | Wajib | Nilai yang diterima                           |
+| ---------- | ------ | ----- | --------------------------------------------- |
+| `kelompok` | string | Tidak | `SAINTEK`, `SOSHUM`, `CAMPURAN`               |
+| `jenjang`  | string | Tidak | `S1`, `D3`, `D4`                              |
+| `search`   | string | Tidak | Pencarian parsial pada `nama` atau `fakultas` |
 
 **Contoh Request:**
+
 ```
 GET /api/v1/ptn/a1b2c3d4-e5f6-7890-abcd-ef1234567890/jurusan?kelompok=SAINTEK
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": [
@@ -2152,6 +2318,7 @@ GET /api/v1/ptn/a1b2c3d4-e5f6-7890-abcd-ef1234567890/jurusan?kelompok=SAINTEK
 **Error Responses:**
 
 `404 Not Found` — PTN tidak ditemukan:
+
 ```json
 {
   "message": "PTN tidak ditemukan"
@@ -2167,25 +2334,28 @@ GET /api/v1/ptn/a1b2c3d4-e5f6-7890-abcd-ef1234567890/jurusan?kelompok=SAINTEK
 **Role required:** `ADMIN` atau `SISWA`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Query Parameters:**
 
-| Parameter  | Tipe   | Wajib | Nilai yang diterima                          |
-|------------|--------|-------|----------------------------------------------|
-| `kelompok` | string | Tidak | `SAINTEK`, `SOSHUM`, `CAMPURAN`              |
-| `jenjang`  | string | Tidak | `S1`, `D3`, `D4`                             |
-| `search`   | string | Tidak | Pencarian parsial pada `nama` atau `fakultas`|
+| Parameter  | Tipe   | Wajib | Nilai yang diterima                           |
+| ---------- | ------ | ----- | --------------------------------------------- |
+| `kelompok` | string | Tidak | `SAINTEK`, `SOSHUM`, `CAMPURAN`               |
+| `jenjang`  | string | Tidak | `S1`, `D3`, `D4`                              |
+| `search`   | string | Tidak | Pencarian parsial pada `nama` atau `fakultas` |
 
 **Contoh Request:**
+
 ```
 GET /api/v1/ptn/jurusan?kelompok=SAINTEK&jenjang=S1
 GET /api/v1/ptn/jurusan?search=Teknik Informatika
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": [
@@ -2242,17 +2412,19 @@ GET /api/v1/ptn/jurusan?search=Teknik Informatika
 **Role required:** `ADMIN` atau `SISWA`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi       |
-|-----------|--------|-------|-----------------|
-| `id`      | string | Ya    | UUID dari jurusan|
+| Parameter | Tipe   | Wajib | Deskripsi         |
+| --------- | ------ | ----- | ----------------- |
+| `id`      | string | Ya    | UUID dari jurusan |
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -2288,6 +2460,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `404 Not Found` — jurusan tidak ditemukan:
+
 ```json
 {
   "message": "Jurusan tidak ditemukan"
@@ -2303,6 +2476,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Role required:** `ADMIN`
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
@@ -2310,18 +2484,18 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 
 **Request Body:**
 
-| Field          | Tipe   | Wajib | Validasi                                          |
-|----------------|--------|-------|---------------------------------------------------|
-| `ptnId`        | string | Ya    | UUID PTN yang valid dan terdaftar di database     |
-| `nama`         | string | Ya    | Tidak boleh kosong                                |
-| `kode`         | string | Ya    | Tidak boleh kosong, contoh: `UI-IK`               |
-| `fakultas`     | string | Ya    | Tidak boleh kosong                                |
-| `jenjang`      | string | Ya    | `S1`, `D3`, atau `D4`                             |
-| `kelompok`     | string | Ya    | `SAINTEK`, `SOSHUM`, atau `CAMPURAN`              |
-| `dayaTampung`  | number | Tidak | Integer positif                                   |
-| `passingGrade` | number | Tidak | Nilai float, contoh: `750.5`                      |
-| `deskripsi`    | string | Tidak | Deskripsi program studi                           |
-| `prospekKerja` | string | Tidak | Deskripsi prospek karier                          |
+| Field          | Tipe   | Wajib | Validasi                                      |
+| -------------- | ------ | ----- | --------------------------------------------- |
+| `ptnId`        | string | Ya    | UUID PTN yang valid dan terdaftar di database |
+| `nama`         | string | Ya    | Tidak boleh kosong                            |
+| `kode`         | string | Ya    | Tidak boleh kosong, contoh: `UI-IK`           |
+| `fakultas`     | string | Ya    | Tidak boleh kosong                            |
+| `jenjang`      | string | Ya    | `S1`, `D3`, atau `D4`                         |
+| `kelompok`     | string | Ya    | `SAINTEK`, `SOSHUM`, atau `CAMPURAN`          |
+| `dayaTampung`  | number | Tidak | Integer positif                               |
+| `passingGrade` | number | Tidak | Nilai float, contoh: `750.5`                  |
+| `deskripsi`    | string | Tidak | Deskripsi program studi                       |
+| `prospekKerja` | string | Tidak | Deskripsi prospek karier                      |
 
 ```json
 {
@@ -2339,6 +2513,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 **Success Response** `201 Created`:
+
 ```json
 {
   "data": {
@@ -2361,6 +2536,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 **Error Responses:**
 
 `400 Bad Request` — field wajib tidak diisi:
+
 ```json
 {
   "message": "Field ptnId, nama, kode, fakultas, jenjang, dan kelompok wajib diisi"
@@ -2368,6 +2544,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 `400 Bad Request` — jenjang tidak valid:
+
 ```json
 {
   "message": "Jenjang tidak valid"
@@ -2375,6 +2552,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 `400 Bad Request` — kelompok tidak valid:
+
 ```json
 {
   "message": "Kelompok tidak valid"
@@ -2382,6 +2560,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 `403 Forbidden` — role pengakses bukan ADMIN:
+
 ```json
 {
   "message": "Akses ditolak. Diperlukan role: ADMIN"
@@ -2389,6 +2568,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 `404 Not Found` — PTN dengan ptnId tidak ditemukan:
+
 ```json
 {
   "message": "PTN tidak ditemukan"
@@ -2404,6 +2584,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 **Role required:** `ADMIN`
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
@@ -2411,11 +2592,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi        |
-|-----------|--------|-------|------------------|
-| `id`      | string | Ya    | UUID dari jurusan|
+| Parameter | Tipe   | Wajib | Deskripsi         |
+| --------- | ------ | ----- | ----------------- |
+| `id`      | string | Ya    | UUID dari jurusan |
 
 **Request Body (semua field opsional):**
+
 ```json
 {
   "dayaTampung": 100,
@@ -2425,6 +2607,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -2447,6 +2630,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 **Error Responses:**
 
 `400 Bad Request` — jenjang atau kelompok tidak valid:
+
 ```json
 {
   "message": "Jenjang tidak valid"
@@ -2454,6 +2638,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 `403 Forbidden` — role pengakses bukan ADMIN:
+
 ```json
 {
   "message": "Akses ditolak. Diperlukan role: ADMIN"
@@ -2461,6 +2646,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 `404 Not Found` — jurusan tidak ditemukan:
+
 ```json
 {
   "message": "Jurusan tidak ditemukan"
@@ -2476,17 +2662,19 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 **Role required:** `ADMIN`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi        |
-|-----------|--------|-------|------------------|
-| `id`      | string | Ya    | UUID dari jurusan|
+| Parameter | Tipe   | Wajib | Deskripsi         |
+| --------- | ------ | ----- | ----------------- |
+| `id`      | string | Ya    | UUID dari jurusan |
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "message": "Jurusan berhasil dihapus"
@@ -2496,6 +2684,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 **Error Responses:**
 
 `403 Forbidden` — role pengakses bukan ADMIN:
+
 ```json
 {
   "message": "Akses ditolak. Diperlukan role: ADMIN"
@@ -2503,6 +2692,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 ```
 
 `404 Not Found` — jurusan tidak ditemukan:
+
 ```json
 {
   "message": "Jurusan tidak ditemukan"
@@ -2673,7 +2863,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 | `singkatan`  | string | Ya    | Tidak boleh kosong                                             |
 | `kota`       | string | Ya    | Tidak boleh kosong                                             |
 | `provinsi`   | string | Ya    | Tidak boleh kosong                                             |
-| `akreditasi` | string | Ya    | `Unggul`, `Baik Sekali`, `Baik`, `A`, `B`, atau `C`           |
+| `akreditasi` | string | Ya    | `Unggul`, `Baik Sekali`, `Baik`, `A`, `B`, atau `C`            |
 | `tipe`       | string | Ya    | `Universitas`, `Institut`, `Politeknik`, atau `Sekolah Tinggi` |
 | `website`    | string | Tidak | URL website PTN                                                |
 | `logoUrl`    | string | Tidak | URL logo PTN                                                   |
@@ -3321,11 +3511,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
 **Role required:** `SISWA`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer <siswa_access_token>
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -3403,6 +3595,7 @@ Authorization: Bearer <siswa_access_token>
 **Error Responses:**
 
 `401 Unauthorized` — token tidak valid atau expired:
+
 ```json
 {
   "message": "Token tidak valid atau sudah expired"
@@ -3410,6 +3603,7 @@ Authorization: Bearer <siswa_access_token>
 ```
 
 `403 Forbidden` — role pengakses bukan SISWA:
+
 ```json
 {
   "message": "Akses ditolak. Diperlukan role: SISWA"
@@ -3425,11 +3619,13 @@ Authorization: Bearer <siswa_access_token>
 **Role required:** `ADMIN`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer <admin_access_token>
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -3474,6 +3670,7 @@ Authorization: Bearer <admin_access_token>
 **Error Responses:**
 
 `401 Unauthorized` — token tidak valid atau expired:
+
 ```json
 {
   "message": "Token tidak valid atau sudah expired"
@@ -3481,6 +3678,7 @@ Authorization: Bearer <admin_access_token>
 ```
 
 `403 Forbidden` — role pengakses bukan ADMIN:
+
 ```json
 {
   "message": "Akses ditolak. Diperlukan role: ADMIN"
@@ -3498,23 +3696,26 @@ Authorization: Bearer <admin_access_token>
 **Role required:** `SISWA`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer <siswa_access_token>
 ```
 
 **Query Parameters:**
 
-| Parameter | Tipe   | Wajib | Nilai yang diterima                     | Deskripsi |
-|-----------|--------|-------|-----------------------------------------|-----------|
-| `kelompok`| string | Tidak | `SAINTEK`, `SOSHUM`, `CAMPURAN`          | Filter berdasarkan kelompok ujian |
-| `limit`   | number | Tidak | Integer antara 1 hingga 50 (default 10) | Membatasi jumlah rekomendasi |
+| Parameter  | Tipe   | Wajib | Nilai yang diterima                     | Deskripsi                         |
+| ---------- | ------ | ----- | --------------------------------------- | --------------------------------- |
+| `kelompok` | string | Tidak | `SAINTEK`, `SOSHUM`, `CAMPURAN`         | Filter berdasarkan kelompok ujian |
+| `limit`    | number | Tidak | Integer antara 1 hingga 50 (default 10) | Membatasi jumlah rekomendasi      |
 
 **Contoh Request:**
+
 ```
 GET /api/v1/rekomendasi?kelompok=SAINTEK&limit=5
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -3577,6 +3778,7 @@ GET /api/v1/rekomendasi?kelompok=SAINTEK&limit=5
 **Error Responses:**
 
 `400 Bad Request` — belum memiliki data tryout yang selesai:
+
 ```json
 {
   "message": "Belum ada data tryout yang diselesaikan untuk menghitung skor referensi"
@@ -3584,6 +3786,7 @@ GET /api/v1/rekomendasi?kelompok=SAINTEK&limit=5
 ```
 
 `400 Bad Request` — filter kelompok tidak valid:
+
 ```json
 {
   "message": "Kelompok tidak valid, harus SAINTEK, SOSHUM, atau CAMPURAN"
@@ -3591,6 +3794,7 @@ GET /api/v1/rekomendasi?kelompok=SAINTEK&limit=5
 ```
 
 `401 Unauthorized` — token tidak valid atau expired:
+
 ```json
 {
   "message": "Token tidak valid atau sudah expired"
@@ -3598,6 +3802,7 @@ GET /api/v1/rekomendasi?kelompok=SAINTEK&limit=5
 ```
 
 `403 Forbidden` — role pengakses bukan SISWA:
+
 ```json
 {
   "message": "Akses ditolak. Diperlukan role: SISWA"
@@ -3615,11 +3820,13 @@ GET /api/v1/rekomendasi?kelompok=SAINTEK&limit=5
 **Role required:** Semua yang terautentikasi
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -3645,6 +3852,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `401 Unauthorized` — tidak ada token atau token tidak valid:
+
 ```json
 {
   "error": "Unauthorized"
@@ -3652,6 +3860,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `500 Internal Server Error` — kesalahan internal server:
+
 ```json
 {
   "error": "Internal server error"
@@ -3667,11 +3876,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Role required:** Semua yang terautentikasi
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -3689,11 +3900,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Role required:** Semua yang terautentikasi
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -3712,17 +3925,19 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Role required:** Semua yang terautentikasi
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi             |
-|-----------|--------|-------|-----------------------|
-| `id`      | string | Ya    | UUID notifikasi       |
+| Parameter | Tipe   | Wajib | Deskripsi       |
+| --------- | ------ | ----- | --------------- |
+| `id`      | string | Ya    | UUID notifikasi |
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "data": {
@@ -3735,6 +3950,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `403 Forbidden` — notifikasi milik user lain:
+
 ```json
 {
   "error": "Tidak memiliki akses"
@@ -3742,6 +3958,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `404 Not Found` — notifikasi tidak ditemukan:
+
 ```json
 {
   "error": "Notifikasi tidak ditemukan"
@@ -3757,17 +3974,19 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Role required:** Semua yang terautentikasi
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **URL Parameters:**
 
-| Parameter | Tipe   | Wajib | Deskripsi             |
-|-----------|--------|-------|-----------------------|
-| `id`      | string | Ya    | UUID notifikasi       |
+| Parameter | Tipe   | Wajib | Deskripsi       |
+| --------- | ------ | ----- | --------------- |
+| `id`      | string | Ya    | UUID notifikasi |
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "message": "Notifikasi berhasil dihapus"
@@ -3777,6 +3996,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `403 Forbidden` — notifikasi milik user lain:
+
 ```json
 {
   "error": "Tidak memiliki akses"
@@ -3784,6 +4004,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `404 Not Found` — notifikasi tidak ditemukan:
+
 ```json
 {
   "error": "Notifikasi tidak ditemukan"
@@ -3801,11 +4022,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Role required:** `SISWA`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "success": true,
@@ -3851,6 +4074,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `404 Not Found` — belum ada data jawaban latihan atau tryout:
+
 ```json
 {
   "success": false,
@@ -3859,6 +4083,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `503 Service Unavailable` — gagal memproses AI:
+
 ```json
 {
   "success": false,
@@ -3875,11 +4100,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Role required:** `SISWA`
 
 **Request Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "success": true,
@@ -3907,6 +4134,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `404 Not Found` — belum ada data tryout:
+
 ```json
 {
   "success": false,
@@ -3915,6 +4143,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `404 Not Found` — tidak ada jurusan yang sesuai passing grade:
+
 ```json
 {
   "success": false,
@@ -3923,6 +4152,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `503 Service Unavailable` — gagal memproses AI:
+
 ```json
 {
   "success": false,
@@ -3939,28 +4169,37 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Role required:** `SISWA`
 
 **Request Headers:**
+
 ```
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Request Body:**
+
 ```json
 {
   "pesan": "Jelaskan cara menghitung integral substitusi",
   "riwayat": [
-    { "role": "user", "content": "Halo Tuto, saya kesulitan materi Matematika" },
-    { "role": "model", "content": "Halo! Jangan khawatir, materi apa yang sulit?" }
+    {
+      "role": "user",
+      "content": "Halo Tuto, saya kesulitan materi Matematika"
+    },
+    {
+      "role": "model",
+      "content": "Halo! Jangan khawatir, materi apa yang sulit?"
+    }
   ]
 }
 ```
 
-| Field     | Tipe  | Wajib | Deskripsi                                        |
-|-----------|-------|-------|--------------------------------------------------|
-| `pesan`   | string| Ya    | Isi pesan user (maks 1000 karakter).             |
-| `riwayat` | array | Tidak | Array objek percakapan sebelumnya (`role` & `content`). Maks 20 pesan. |
+| Field     | Tipe   | Wajib | Deskripsi                                                              |
+| --------- | ------ | ----- | ---------------------------------------------------------------------- |
+| `pesan`   | string | Ya    | Isi pesan user (maks 1000 karakter).                                   |
+| `riwayat` | array  | Tidak | Array objek percakapan sebelumnya (`role` & `content`). Maks 20 pesan. |
 
 **Success Response** `200 OK`:
+
 ```json
 {
   "success": true,
@@ -3974,6 +4213,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Error Responses:**
 
 `400 Bad Request` — validasi pesan gagal:
+
 ```json
 {
   "success": false,
@@ -3982,6 +4222,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 `503 Service Unavailable` — gagal memproses AI:
+
 ```json
 {
   "success": false,
@@ -3993,17 +4234,18 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ## Error Codes
 
-| Status Code | Deskripsi                                                        |
-|-------------|------------------------------------------------------------------|
-| `200`       | Request berhasil                                                 |
-| `201`       | Resource berhasil dibuat                                         |
-| `400`       | Bad Request — validasi gagal atau input tidak valid               |
-| `401`       | Unauthorized — token tidak ada, tidak valid, atau sudah expired   |
-| `403`       | Forbidden — user tidak memiliki akses karena role tidak memadai    |
-| `404`       | Not Found — resource tidak ditemukan                              |
-| `500`       | Internal Server Error — kesalahan server                          |
+| Status Code | Deskripsi                                                       |
+| ----------- | --------------------------------------------------------------- |
+| `200`       | Request berhasil                                                |
+| `201`       | Resource berhasil dibuat                                        |
+| `400`       | Bad Request — validasi gagal atau input tidak valid             |
+| `401`       | Unauthorized — token tidak ada, tidak valid, atau sudah expired |
+| `403`       | Forbidden — user tidak memiliki akses karena role tidak memadai |
+| `404`       | Not Found — resource tidak ditemukan                            |
+| `500`       | Internal Server Error — kesalahan server                        |
 
 Semua error response menggunakan format:
+
 ```json
 {
   "message": "Deskripsi error dalam Bahasa Indonesia"

@@ -2,44 +2,51 @@ import { Router, Request, Response } from 'express';
 import { supabase, supabaseAdmin } from '../../config/supabase';
 import { authenticate, AuthRequest } from '../../middlewares/auth.middleware';
 import { requireRole } from '../../middlewares/role.middleware';
+import { loginLimiter, registerLimiter } from '../../middlewares/limit';
 import { Role } from '@prisma/client';
 import { prisma } from '../../config/prisma';
 
 const router = Router();
 
-router.post('/register', async (req: Request, res: Response) => {
-  const { email, password, name } = req.body;
+router.post(
+  '/register',
+  registerLimiter,
+  async (req: Request, res: Response) => {
+    const { email, password, name } = req.body;
 
-  if (!email || !password || !name) {
-    res.status(400).json({ message: 'Email, password, dan name wajib diisi' });
-    return;
+    if (!email || !password || !name) {
+      res
+        .status(400)
+        .json({ message: 'Email, password, dan name wajib diisi' });
+      return;
+    }
+
+    if (password.length < 6) {
+      res.status(400).json({ message: 'Password minimal 6 karakter' });
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { name },
+      },
+    });
+
+    if (error) {
+      res.status(400).json({ message: error.message });
+      return;
+    }
+
+    res.status(201).json({
+      message: 'Registrasi berhasil, cek email untuk verifikasi',
+      user: data.user,
+    });
   }
+);
 
-  if (password.length < 6) {
-    res.status(400).json({ message: 'Password minimal 6 karakter' });
-    return;
-  }
-
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: { name },
-    },
-  });
-
-  if (error) {
-    res.status(400).json({ message: error.message });
-    return;
-  }
-
-  res.status(201).json({
-    message: 'Registrasi berhasil, cek email untuk verifikasi',
-    user: data.user,
-  });
-});
-
-router.post('/login', async (req: Request, res: Response) => {
+router.post('/login', loginLimiter, async (req: Request, res: Response) => {
   const { email, password } = req.body;
   if (!email || !password) {
     res.status(400).json({ message: 'Email dan password wajib diisi' });
